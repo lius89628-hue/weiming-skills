@@ -231,7 +231,7 @@ footer a:hover{color:var(--accent)}
       <div class="steps">
         <div class="step"><b>01</b><h3>下载解压</h3><p>在工单上点“下载”，得到一个 zip，解压出一个以 skill 名命名的文件夹。</p></div>
         <div class="step"><b>02</b><h3>放进 skills 目录</h3><p>把文件夹移进去就行，不用安装任何依赖：</p>
-          <div class="code"><span id="c1">mkdir -p ~/.claude/skills && mv ~/Downloads/bilibili-ops ~/.claude/skills/</span><button type="button" data-copy="c1">复制</button></div></div>
+          <div class="code"><span id="c1">mkdir -p ~/.claude/skills && mv ~/Downloads/drama-storyboard ~/.claude/skills/</span><button type="button" data-copy="c1">复制</button></div></div>
         <div class="step"><b>03</b><h3>直接开口</h3><p>对 AI 说你要做的事，它会自己调用对应的 skill：</p>
           <div class="code"><span id="c2">帮我看看今天B站的数据</span><button type="button" data-copy="c2">复制</button></div></div>
       </div>
@@ -265,7 +265,11 @@ const SKILLS = [
    proof:"正在未名自己的B站账号上跑", zip:"downloads/bilibili-ops.zip",
    tools:["Claude Code","Codex","Cursor"],
    inside:["SKILL.md：完整的运营流程和红线","bili_stats.py：只读日报脚本，纯 Python 标准库","接口速查表：数据、评论、置顶","冷启动打法：粉丝 1000 以内怎么排期"]},
-  {no:"002", cat:"剧本分镜", name:"AI 短剧剧本与分镜", done:false, p:45, desc:"从一句话梗概到分场剧本、逐镜头分镜和画面提示词。"},
+  {no:"002", cat:"剧本分镜", id:"drama-storyboard", name:"AI 短剧剧本与分镜", done:true, ver:"v1.0", size:"22 KB",
+   desc:"从一句话梗概到角色设定、场景库和逐镜头分镜，输出出图、视频、配音管线能直接用的 JSON，并自动查错。",
+   proof:"出自连载短剧《宗门杂役》的真实制作", zip:"downloads/drama-storyboard.zip",
+   tools:["Claude Code","Codex","Cursor"],
+   inside:["SKILL.md：从梗概到分镜的完整写法和 10 条避坑规矩","check.py：自动检查台词时长、括号、景别、夜戏、串图","schema.md：设定和分镜的字段说明","示例《快递站的猫》：可以直接照着改"]},
   {no:"003", cat:"配音音频", name:"AI 多角色配音", done:false, p:35, desc:"按角色分配音色，批量合成台词，支持火山引擎豆包语音和 MiniMax。"},
   {no:"004", cat:"剪辑出片", name:"自动剪辑出片", done:false, p:20, desc:"把画面、配音、字幕和音乐按分镜拼成 1080p 成片。"},
   {no:"005", cat:"效率工具", name:"多平台发布清单", done:false, p:10, desc:"同一条视频改写成 B站、抖音、视频号各自的标题、简介和标签。"}

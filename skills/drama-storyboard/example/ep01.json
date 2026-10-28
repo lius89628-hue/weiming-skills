@@ -1,0 +1,73 @@
+{
+ "episode": 1,
+ "title": "会签收的猫",
+ "shots": [
+  {
+   "id": "s01",
+   "dur": 3,
+   "type": "insert",
+   "scene": "station",
+   "chars": [
+    "mimi"
+   ],
+   "ref": "face",
+   "image": "close-up of 咪咪 pressing one paw firmly on a brown parcel, staring at camera",
+   "motion": "the cat pushes its paw down and blinks slowly"
+  },
+  {
+   "id": "s02",
+   "dur": 4,
+   "type": "talk",
+   "scene": "station",
+   "chars": [
+    "azhou"
+   ],
+   "ref": "face",
+   "image": "close-up of 阿舟 frowning in disbelief, holding a parcel scanner",
+   "line": [
+    "azhou",
+    "又是你？这已经是第七天了。"
+   ],
+   "emo": "又好气又好笑地小声嘀咕"
+  },
+  {
+   "id": "s03",
+   "dur": 4,
+   "type": "action",
+   "scene": "station",
+   "chars": [
+    "azhou",
+    "mimi"
+   ],
+   "image": "medium shot of 阿舟 crouching to look at the parcel label while 咪咪 sits on top of the box",
+   "motion": "he leans closer, the cat flicks its tail"
+  },
+  {
+   "id": "s04",
+   "dur": 5,
+   "type": "talk",
+   "scene": "station",
+   "chars": [
+    "azhou",
+    "mimi"
+   ],
+   "image": "full shot of 阿舟 holding the parcel up, 咪咪 meowing at his feet",
+   "line": [
+    "azhou",
+    "收件人写的是……咪咪？谁给猫寄快递啊。"
+   ],
+   "emo": "难以置信，越说越想笑"
+  },
+  {
+   "id": "s05",
+   "dur": 4,
+   "type": "insert",
+   "scene": "street_night",
+   "chars": [
+    "mimi"
+   ],
+   "image": "wide shot of the empty street at night under one street lamp, 咪咪 walking away carrying a small envelope in its mouth",
+   "motion": "the cat trots out of the lamplight into darkness"
+  }
+ ]
+}

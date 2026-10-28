@@ -1,0 +1,29 @@
+{
+ "title": "快递站的猫",
+ "aspect": "9:16",
+ "style": "cinematic photorealistic film still, modern Chinese small town, soft natural light, realistic skin and fabric texture, shallow depth of field, subtle film grain",
+ "negative": "cartoon, anime, text, watermark, logo, extra fingers, deformed hands, blurry face",
+ "night_style": "night scene, warm practical lamplight, deep shadows",
+ "characters": {
+  "azhou": {
+   "name": "阿舟",
+   "prompt": "a 24-year-old Chinese young man, short messy black hair, tired kind eyes, wearing a plain navy-blue work jacket over a white T-shirt, black trousers, a lanyard badge"
+  },
+  "mimi": {
+   "name": "咪咪",
+   "prompt": "a chubby orange tabby cat with a white chest and one bent ear, round amber eyes, fluffy tail"
+  }
+ },
+ "scenes": {
+  "station": "a small neighbourhood parcel station, metal shelves stacked with brown cardboard boxes, fluorescent ceiling light, no text, no logos",
+  "street_night": "a quiet small-town street at night, a single street lamp, wet asphalt reflecting light, no text"
+ },
+ "night_scenes": [
+  "street_night"
+ ],
+ "outline": [
+  "1 会签收的猫——咪咪每天准时签收同一个没人认领的包裹",
+  "2 包裹里是什么——阿舟拆开，发现一封十年前的信"
+ ],
+ "notes": "竖屏，单集约 2 分钟，都市温情轻喜剧"
+}
