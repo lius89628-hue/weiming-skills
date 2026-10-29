@@ -199,6 +199,13 @@ dialog::backdrop{background:rgba(15,20,30,.55)}
 .dlg h4{font-size:15px;font-weight:800;margin:24px 0 10px}
 .dlg ul,.dlg ol{margin:0;padding-left:1.3em;color:var(--sub);font-size:15.5px}
 .dlg li+li{margin-top:4px}
+.vid{display:flex;align-items:center;gap:14px;margin-top:20px;padding:14px 16px;border-radius:14px;background:var(--blue-soft);color:var(--ink);text-decoration:none}
+.vid:hover{filter:brightness(.97)}
+.vid .play{flex:none;width:40px;height:40px;border-radius:50%;background:#fb7299;position:relative}
+.vid .play::after{content:"";position:absolute;left:16px;top:12px;border:8px solid transparent;border-left:13px solid #fff;border-right:0}
+.vid b{display:block;font-size:16px}
+.vid small{display:block;color:var(--sub);font-size:13.5px}
+.faq details p a,.demo-cap a{color:var(--blue);font-weight:700}
 .copybox{position:relative;background:#17191c;color:#e3e8ee;border-radius:12px;padding:16px 16px 60px;font-size:14.5px;line-height:1.75}
 .copy{position:absolute;right:12px;bottom:12px;height:36px;padding:0 16px;border-radius:9px;border:0;background:#4f8ff0;color:#fff;font:700 14px/1 var(--sans);cursor:pointer}
 .copy.ok{background:#2f9e6a}
@@ -291,7 +298,7 @@ dialog::backdrop{background:rgba(15,20,30,.55)}
         </div>
         <div class="win-input"><span>把你的需求说清楚</span><span class="chip">DeepSeek</span><span class="send"></span></div>
       </div>
-      <div class="demo-cap"><span>网页重画版，点小鲸鱼试试。真插件在 DSH 窗口里游。</span><button type="button" id="replay">再看一遍</button></div>
+      <div class="demo-cap"><span>网页重画版，点小鲸鱼试试。完整过程看<a href="https://www.bilibili.com/video/BV19esf6nEEE" target="_blank" rel="noopener">B站视频教程</a>。</span><button type="button" id="replay">再看一遍</button></div>
     </div>
   </div>
 </section>
@@ -360,7 +367,7 @@ dialog::backdrop{background:rgba(15,20,30,.55)}
   <div class="wrap">
     <div class="sec-head"><h2>常见问题</h2></div>
     <div class="faq">
-      <details><summary>技能包（skill）到底是什么？</summary><p>一个文件夹，里面是一份写给 AI 的「岗位说明书」（SKILL.md），有时还带几个小脚本。AI 读了它，就知道这类活该怎么干、哪些坑要避开。写一次，以后一直能用。</p></details>
+      <details><summary>技能包（skill）到底是什么？</summary><p>一个文件夹，里面是一份写给 AI 的「岗位说明书」（SKILL.md），有时还带几个小脚本。AI 读了它，就知道这类活该怎么干、哪些坑要避开。写一次，以后一直能用。第一期视频专门讲这个：<a href="https://www.bilibili.com/video/BV1nrxF6vEzB" target="_blank" rel="noopener">什么是 Skill，7 分钟讲透</a>。</p></details>
       <details><summary>提示词和技能包有什么区别？</summary><p>提示词是一段话，复制粘贴就能用，适合一次性的事，比如做个宠物插件。技能包是一个文件夹，装好之后 AI 每次遇到这类活都会照着做。</p></details>
       <details><summary>我在国内，用哪个工具？</summary><p>推荐 DeepSeek Harness（DSH），国内直接能用，DeepSeek 价格也便宜。OpenCode、Cline 这类工具接上国内模型也一样能用。</p></details>
       <details><summary>要会写代码吗？</summary><p>不用。会打字、会复制粘贴就行。每个技能包都写了一步一步的用法。</p></details>
@@ -389,7 +396,7 @@ dialog::backdrop{background:rgba(15,20,30,.55)}
 <script>
 const BILI = "https://space.bilibili.com/3632307703384194";
 const SKILLS = [
-  {id:"dsh-desktop-pet", type:"prompt", name:"一句话做个桌面宠物", where:"DSH 创造模式",
+  {id:"dsh-desktop-pet", type:"prompt", name:"一句话做个桌面宠物", where:"DSH 创造模式", video:"https://www.bilibili.com/video/BV19esf6nEEE",
    sum:"粘贴这段话，DSH 会自己写代码、自己安装，做出一只会游泳、会眨眼、点一下会鼓励你的小鲸鱼。",
    can:["原创卡通小鲸鱼，悬浮在 DSH 界面上慢慢游","会眨眼、偶尔吐泡泡，可以用鼠标拖动","点一下冒出一句随机的鼓励话","右键可以藏起来或退出，插件页里有总开关"],
    prompt:"帮我做一个 DSH 的「桌面宠物」插件：一只原创的卡通小鲸鱼，悬浮在界面上，会慢慢游动、眨眼、偶尔吐泡泡；可以用鼠标拖动它；点它一下会冒出一句随机的鼓励话；右键可以隐藏或退出。画风简洁可爱，用代码绘制，不要用网上的图片。做完告诉我怎么开关这个插件。",
@@ -403,7 +410,7 @@ $("#tags").innerHTML = SKILLS.map(s => `
   <button class="tag" type="button" data-id="${s.id}">
     <span class="kind">${s.type==="prompt"?"复制即用":"下载安装"}</span>
     <h3>${esc(s.name)}</h3><p>${esc(s.sum)}</p>
-    <span class="foot"><span>用在 ${esc(s.where)}</span><b>看用法</b></span>
+    <span class="foot"><span>用在 ${esc(s.where)}${s.video?"，有视频教程":""}</span><b>看用法</b></span>
   </button>`).join("") + `
   <a class="tag ask" href="${BILI}" target="_blank" rel="noopener">
     <h3>你想要什么？</h3><p>剪视频、写周报、整理表格……想让 AI 学会什么，去B站留言。</p>
@@ -415,6 +422,7 @@ function openSkill(id){
   $("#dlgInner").innerHTML = `
     <div class="dlg-head"><div><h3 id="dlgTitle">${esc(s.name)}</h3><p>${esc(s.sum)}</p></div>
       <button class="x" type="button" aria-label="关闭" data-close>×</button></div>
+    ${s.video ? `<a class="vid" href="${s.video}" target="_blank" rel="noopener"><span class="play" aria-hidden="true"></span><span><b>先看视频教程</b><small>B站，4 分钟，从切模式到弹窗怎么点</small></span></a>` : ""}
     <h4>复制这段话</h4>
     <div class="copybox"><span id="pmt">${esc(s.prompt)}</span><button class="copy" type="button" data-copy="pmt">复制</button></div>
     <h4>怎么用</h4><ol>${s.steps.map(i => `<li>${esc(i)}</li>`).join("")}</ol>
