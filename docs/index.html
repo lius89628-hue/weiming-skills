@@ -4,431 +4,463 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>未名的工具箱</title>
-<meta name="description" content="给小白的 AI 技能包：DeepSeek Harness 国内直接用，Claude、Codex、Cursor 也通用。免费开源，一步一步教你用。">
-<meta property="og:title" content="未名的工具箱 · 装上就会干活的 AI 技能包">
-<meta property="og:description" content="免费开源的 AI 技能包，国内直接能用。">
+<meta name="description" content="能直接复制的 AI 提示词和技能包，每个都写清楚怎么用。不会写代码也跟得上，DeepSeek Harness 国内直接能用。免费开源。">
+<meta property="og:title" content="未名的工具箱">
+<meta property="og:description" content="说清楚一句话，AI 自己把它做出来。免费开源的 AI 提示词和技能包。">
 <link rel="icon" href="assets/mascot.webp">
 <style>
-/* 视觉：与 B站头像统一——天蓝主色 + 暖橙点缀 + 米白底。系统字体，国内秒开。 */
+/* 未名的工具箱 v2
+   色彩取自吉祥物：天蓝机身、橙色文件夹、深色屏幕。底色偏冷的纸白，技能区是一面洞洞板工具墙。
+   首页主角：仿 DSH 窗口里的实时演示，提示词打出来，小鲸鱼游出来，可以点。 */
 :root{
-  --bg:#fbf8f3; --alt:#f3eee6; --panel:#ffffff; --ink:#1d2129; --sub:#545b66; --faint:#8b929c;
-  --line:#e8e2d8; --line2:#d9d1c4;
-  --blue:#3b8fe0; --blue-soft:#e4f0fc; --orange:#e2734d; --orange-soft:#fdeee7; --green:#2f9e6a; --green-soft:#e3f4ea;
-  --term:#151a22; --term-ink:#dbe3ee; --term-dim:#8792a2;
+  --paper:#f2f5f8; --panel:#ffffff; --ink:#1b2230; --sub:#4f5a6b; --faint:#6f7a8a;
+  --line:#dde3ea; --blue:#2672c7; --blue-ink:#ffffff; --blue-soft:#e3eefb;
+  --sky:#7cc6f2; --orange:#ef7d4e; --green:#1f8a58;
+  --board:#e1e8ef; --hole:#c3cfdb;
   --sans:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Cascadia Mono",monospace;
-  --r:18px; --sh:0 1px 2px rgba(29,33,41,.05),0 16px 36px -18px rgba(29,33,41,.22);
+  color-scheme:light;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#12151b; --alt:#171b23; --panel:#1c212b; --ink:#eef1f5; --sub:#aab2bd; --faint:#7d8693;
-  --line:#272d38; --line2:#343c49; --blue:#6aaef0; --blue-soft:#1b2a3c; --orange:#f08a64; --orange-soft:#33231d;
-  --green:#5cc994; --green-soft:#17291f; --term:#0d1016; --sh:0 1px 2px rgba(0,0,0,.4),0 16px 36px -18px rgba(0,0,0,.7); color-scheme:dark}}
+  --paper:#141922; --panel:#1b222d; --ink:#e8edf3; --sub:#a3aebd; --faint:#8995a5;
+  --line:#2a3340; --blue:#6fb0f2; --blue-ink:#0f1722; --blue-soft:#1c2a3b;
+  --orange:#f39468; --green:#4cc28a;
+  --board:#18202a; --hole:#0d1218; color-scheme:dark}
+  .win,.approve{border-color:#3a414b}}
 :root[data-theme="dark"]{
-  --bg:#12151b; --alt:#171b23; --panel:#1c212b; --ink:#eef1f5; --sub:#aab2bd; --faint:#7d8693;
-  --line:#272d38; --line2:#343c49; --blue:#6aaef0; --blue-soft:#1b2a3c; --orange:#f08a64; --orange-soft:#33231d;
-  --green:#5cc994; --green-soft:#17291f; --term:#0d1016; --sh:0 1px 2px rgba(0,0,0,.4),0 16px 36px -18px rgba(0,0,0,.7); color-scheme:dark}
+  --paper:#141922; --panel:#1b222d; --ink:#e8edf3; --sub:#a3aebd; --faint:#8995a5;
+  --line:#2a3340; --blue:#6fb0f2; --blue-ink:#0f1722; --blue-soft:#1c2a3b;
+  --orange:#f39468; --green:#4cc28a;
+  --board:#18202a; --hole:#0d1218; color-scheme:dark}
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
-a{color:inherit;text-decoration:none}
-button{font:inherit;color:inherit}
-img{max-width:100%;height:auto;display:block}
-.in{max-width:1140px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:8px}
-.mono{font-family:var(--mono)}
+body{margin:0;background:var(--paper);color:var(--ink);font:16.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+img,svg{max-width:100%;height:auto;display:block}
+a{color:inherit}
+h1,h2,h3,h4,p{margin:0}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
 
-/* 导航 */
-header.nav{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid transparent;transition:border-color .2s}
-header.nav.scrolled{border-bottom-color:var(--line)}
-.nav .in{display:flex;align-items:center;justify-content:space-between;height:64px;gap:12px}
-.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px;white-space:nowrap}
-.brand img{width:34px;height:34px;border-radius:50%}
-.links{display:flex;align-items:center;gap:2px}
-.links a{font-size:14px;color:var(--sub);padding:8px 12px;border-radius:10px}
-.links a:hover{color:var(--ink);background:var(--alt)}
-.links .bili{color:#fff;background:#fb7299;margin-left:6px;font-weight:700}
-.links .bili:hover{background:#f2608a;color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 22px;border-radius:12px;font:700 16px/1 var(--sans);text-decoration:none;border:2px solid transparent;cursor:pointer;white-space:nowrap}
+.btn.primary{background:var(--blue);color:var(--blue-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.line{border-color:var(--ink);color:var(--ink);background:transparent}
+.btn.line:hover{background:var(--ink);color:var(--paper)}
+.btn.bili{background:#fb7299;color:#fff;height:40px;padding:0 16px;font-size:15px;border-radius:10px}
 
-/* Hero */
-.hero{padding-block:56px 40px;position:relative}
-.hero::before{content:"";position:absolute;inset:-80px 0 auto auto;width:min(620px,70vw);height:520px;background:radial-gradient(closest-side,var(--blue-soft),transparent);z-index:-1}
-.hero .in{display:grid;grid-template-columns:1.05fr 1fr;gap:48px;align-items:center}
-.tag{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--sub);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 14px;margin-bottom:20px}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
-h1{font-size:clamp(36px,5.4vw,60px);line-height:1.12;letter-spacing:-.02em;font-weight:800;margin:0}
-h1 .hl{color:var(--blue);position:relative;white-space:nowrap}
-h1 .hl::after{content:"";position:absolute;left:0;right:0;bottom:.06em;height:.22em;background:var(--orange);opacity:.28;border-radius:4px;z-index:-1}
-.lead{font-size:18px;color:var(--sub);margin:20px 0 28px;max-width:30em}
-.ctas{display:flex;gap:12px;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:50px;padding:0 24px;border-radius:14px;font-weight:700;font-size:16px;border:1.5px solid transparent;cursor:pointer;transition:transform .15s,background .15s,border-color .15s}
-.btn svg{width:18px;height:18px}
-.btn.primary{background:var(--blue);color:#fff;box-shadow:0 8px 20px -10px var(--blue)}
-.btn.primary:hover{transform:translateY(-2px)}
-.btn.ghost{background:var(--panel);border-color:var(--line2)}
-.btn.ghost:hover{border-color:var(--ink)}
-.trust{display:flex;gap:10px 20px;flex-wrap:wrap;margin-top:26px;font-size:14px;color:var(--sub)}
-.trust span{display:flex;align-items:center;gap:6px}
-.trust svg{width:16px;height:16px;color:var(--green);flex:none}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:28px;height:64px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;font-size:18px;letter-spacing:.02em}
+.logo img{width:36px;height:36px;border-radius:10px}
+.top nav{display:flex;gap:24px;margin-left:auto}
+.top nav a{text-decoration:none;color:var(--sub);font-weight:600;font-size:15px}
+.top nav a:hover{color:var(--ink)}
 
-.showcase{position:relative;min-width:0}
-.shot{border-radius:20px;overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 60px -30px rgba(20,30,50,.45);background:var(--term)}
-.shot-bar{display:flex;align-items:center;gap:7px;padding:11px 14px;background:#1c222c}
-.shot-bar i{width:11px;height:11px;border-radius:50%;background:#3d4552}
-.shot-bar span{margin-left:8px;color:#9aa4b2;font-size:12px}
-.shot img{width:100%;aspect-ratio:800/495;object-fit:cover}
-.bubble{position:absolute;left:-18px;bottom:28px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px 16px;box-shadow:var(--sh);font-size:14px;max-width:250px}
-.bubble b{display:block;font-size:12px;color:var(--orange);margin-bottom:2px}
-.sticker{position:absolute;right:-14px;top:-22px;width:86px;height:86px;border-radius:50%;border:4px solid var(--bg);box-shadow:var(--sh);transform:rotate(8deg)}
+.hero{padding:72px 0 88px}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);gap:56px;align-items:center}
+.hero h1{font-size:clamp(34px,4.8vw,60px);line-height:1.16;font-weight:900;letter-spacing:-.01em}
+.hero h1 .ln{display:block;white-space:nowrap}
+.hero .lead{margin-top:24px;font-size:18px;color:var(--sub);max-width:30em}
+.hero .acts{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
+.hero .note{margin-top:20px;font-size:14px;color:var(--faint)}
 
-/* 工具条 */
-.tools .in{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-block:22px}
-.tools strong{font-size:13px;color:var(--faint);font-weight:600;margin-right:6px}
-.tool{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;padding:6px 12px;border-radius:999px;background:var(--panel);border:1px solid var(--line)}
-.tool.star{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
-.tool small{font-size:11px;font-weight:700;color:#fff;background:var(--orange);border-radius:6px;padding:1px 6px}
+/* 仿 DSH 窗口：始终深色，和真软件一致 */
+.win{background:#17191c;color:#d9dde2;border-radius:16px;overflow:hidden;box-shadow:0 30px 60px -28px rgba(20,30,50,.55);border:1px solid #2a2e33}
+.win-bar{display:flex;align-items:center;gap:12px;height:42px;padding:0 16px;background:#1f2226;border-bottom:1px solid #2a2e33;font-size:13px;color:#9aa1aa}
+.win-bar b{color:#e6e9ed;font-weight:700}
+.win-bar .mode{margin-left:auto;padding:2px 10px;border-radius:999px;background:#25382b;color:#8fe0ad;font-weight:600}
+.stage{position:relative;padding:20px 20px 0;min-height:430px;display:flex;flex-direction:column}
+.u{align-self:flex-end;max-width:88%;background:#2a3a52;color:#eaf2fc;border-radius:14px 14px 4px 14px;padding:12px 14px;font-size:14px;line-height:1.7;min-height:48px}
+.caret{display:inline-block;width:2px;height:1em;background:#9cc8f5;vertical-align:-2px;margin-left:1px;animation:blink 1s steps(1) infinite}
+.done .caret{display:none}
+@keyframes blink{50%{opacity:0}}
+.log{list-style:none;margin:16px 0 0;padding:0;font-size:13.5px;line-height:1.6;display:grid;gap:8px}
+.log li{display:flex;gap:10px;align-items:flex-start;color:#aeb5be;opacity:0;transform:translateY(4px);transition:opacity .35s,transform .35s}
+.log li.on{opacity:1;transform:none}
+.log li::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:#59606a;margin-top:7px}
+.log li.ask{color:#f3c49d}
+.log li.ask::before{background:#ef7d4e}
+.log li.ok{color:#9be3b8}
+.log li.ok::before{background:#3fbf7a}
+.pond{position:relative;flex:1;min-height:150px}
+.win-input{display:flex;align-items:center;gap:10px;margin:0 14px 14px;padding:12px 14px;border-radius:12px;background:#232629;border:1px solid #30343a;color:#6f7781;font-size:13px}
+.win-input .chip{margin-left:auto;padding:2px 8px;border-radius:6px;background:#2c3036;color:#9aa1aa}
+.win-input .send{width:28px;height:28px;border-radius:50%;background:#4f8ff0;flex:none}
 
-/* 区块 */
-section{padding-block:72px}
-section.alt{background:var(--alt)}
-.head{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap;margin-bottom:28px}
-.head h2{font-size:clamp(26px,3.4vw,36px);line-height:1.25;margin:0;font-weight:800;letter-spacing:-.01em}
-.head p{margin:8px 0 0;color:var(--sub);max-width:36em}
-.head .more{font-weight:700;color:var(--blue);white-space:nowrap}
-.eyebrow{display:inline-block;font-size:13px;font-weight:700;color:var(--orange);letter-spacing:.06em;margin-bottom:6px}
+/* 小鲸鱼 */
+.swimmer{position:absolute;bottom:18px;left:58%;width:112px;opacity:0;transform:scale(.6);transition:opacity .5s,transform .5s cubic-bezier(.3,1.6,.5,1)}
+.swimmer.on{opacity:1;transform:none;animation:swim 16s ease-in-out infinite}
+.whale{all:unset;cursor:pointer;display:block;width:100%;animation:bob 2.6s ease-in-out infinite}
+.whale:focus-visible{outline:3px solid #9cc8f5;outline-offset:4px;border-radius:50%}
+.whale svg{width:100%}
+.swimmer.on .whale svg{animation:face 16s steps(1) infinite}
+.eyes{transform-box:fill-box;transform-origin:center;animation:wink 4.2s infinite}
+.puff{transform-box:fill-box;transform-origin:center bottom;opacity:0;animation:puff 6s ease-out infinite}
+.puff.p2{animation-delay:.25s}
+@keyframes swim{0%,100%{left:58%}46%,50%{left:4%}96%{left:58%}}
+@keyframes face{0%{transform:none}48%{transform:scaleX(-1)}98%{transform:none}}
+@keyframes bob{50%{transform:translateY(-6px) rotate(-2deg)}}
+@keyframes wink{0%,92%,100%{transform:none}95%{transform:scaleY(.1)}}
+@keyframes puff{0%,70%{opacity:0;transform:translateY(0) scale(.6)}78%{opacity:.9}100%{opacity:0;transform:translateY(-26px) scale(1)}}
+.say{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%) scale(.9);white-space:nowrap;background:#3a3f46;color:#f1f3f5;font-size:13px;padding:6px 12px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+.say::after{content:"";position:absolute;top:100%;left:50%;margin-left:-6px;border:6px solid transparent;border-top-color:#3a3f46}
+.say.on{opacity:1;transform:translateX(-50%)}
+.demo-cap{display:flex;justify-content:space-between;gap:16px;align-items:baseline;margin-top:14px;font-size:14px;color:var(--faint)}
+.demo-cap button{all:unset;cursor:pointer;color:var(--blue);font-weight:700;white-space:nowrap}
+.demo-cap button:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:4px}
 
-/* 视频 */
-.videos{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-.vcard{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:transform .2s,box-shadow .2s}
-.vcard:hover{transform:translateY(-3px);box-shadow:var(--sh)}
-.vthumb{position:relative;aspect-ratio:16/9;background:var(--term)}
-.vthumb img{width:100%;height:100%!important;object-fit:cover}
-.play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.92);display:grid;place-items:center;box-shadow:0 6px 16px rgba(0,0,0,.25)}
-.play svg{width:18px;height:18px;color:#fb7299;margin-left:3px}
-.ep{position:absolute;left:14px;top:14px;font:700 12px var(--mono);color:#fff;background:rgba(0,0,0,.55);padding:3px 8px;border-radius:7px}
-.vbody{padding:18px 20px 20px}
-.vbody h3{margin:0 0 6px;font-size:18px;line-height:1.45}
-.vbody p{margin:0;color:var(--sub);font-size:14.5px}
+.sec{padding:96px 0}
+.sec-head{max-width:640px;margin-bottom:44px}
+.sec-head h2{font-size:clamp(28px,3.6vw,42px);line-height:1.25;font-weight:900}
+.sec-head p{margin-top:12px;color:var(--sub);font-size:17px}
 
-/* 搜索 + 分类 */
-.bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:22px}
-.search{flex:1 1 260px;display:flex;align-items:center;gap:10px;height:48px;padding:0 16px;border:1.5px solid var(--line2);border-radius:14px;background:var(--panel)}
-.search:focus-within{border-color:var(--blue);box-shadow:0 0 0 4px var(--blue-soft)}
-.search svg{width:18px;height:18px;color:var(--faint);flex:none}
-.search input{border:0;outline:0;background:transparent;font:16px var(--sans);color:var(--ink);width:100%;min-width:0}
-.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;max-width:100%;padding-bottom:2px}
-.chips button{flex:none;height:40px;padding:0 16px;border-radius:999px;border:1.5px solid var(--line);background:var(--panel);font-size:14px;font-weight:600;color:var(--sub);cursor:pointer;white-space:nowrap}
-.chips button:hover{color:var(--ink);border-color:var(--line2)}
-.chips button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+/* 工具墙：洞洞板 + 挂牌 */
+.wall{background-color:var(--board);background-image:radial-gradient(circle at 14px 14px,var(--hole) 3.2px,transparent 3.8px);background-size:28px 28px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.tags{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:28px;align-items:start}
+.tag{position:relative;display:flex;flex-direction:column;text-align:left;font:inherit;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:6px 6px 18px 18px;padding:42px 26px 24px;cursor:pointer;text-decoration:none;box-shadow:0 14px 24px -18px rgba(20,30,50,.35);transition:transform .2s}
+.tag::before{content:"";position:absolute;top:14px;left:50%;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--board);box-shadow:inset 0 1px 2px rgba(0,0,0,.25)}
+.tag:hover{transform:translateY(-3px)}
+.tag .kind{align-self:flex-start;font-size:13px;font-weight:700;color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent);padding:2px 10px;border-radius:6px}
+.tag h3{margin-top:14px;font-size:22px;line-height:1.4;font-weight:800}
+.tag p{margin-top:8px;color:var(--sub);font-size:15.5px}
+.tag .foot{display:flex;justify-content:space-between;gap:12px;margin-top:20px;padding-top:16px;border-top:1px dashed var(--line);font-size:14px;color:var(--faint)}
+.tag .foot b{color:var(--blue)}
+.tag.ask{background:color-mix(in srgb,var(--panel) 45%,transparent);border:2px dashed color-mix(in srgb,var(--sub) 45%,transparent);box-shadow:none}
+.tag.ask::before{background:var(--hole)}
+.tag.ask h3{margin-top:0}
 
-/* 卡片 */
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.card{position:relative;display:flex;flex-direction:column;gap:10px;background:var(--panel);border:1.5px solid var(--line);border-radius:var(--r);padding:22px;min-width:0;text-align:left;cursor:pointer;transition:border-color .15s,box-shadow .2s,transform .2s}
-.card:hover{border-color:var(--blue);box-shadow:var(--sh);transform:translateY(-3px)}
-.card.soon{cursor:default;background:transparent;border-style:dashed}
-.card.soon:hover{box-shadow:none;transform:none;border-color:var(--line)}
-.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-.ico{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;flex:none}
-.ico svg{width:24px;height:24px}
-.c0{background:var(--blue-soft);color:var(--blue)} .c1{background:var(--orange-soft);color:var(--orange)} .c2{background:var(--green-soft);color:var(--green)}
-.soon .ico{background:var(--alt);color:var(--faint)}
-.status{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--green-soft);color:var(--green);white-space:nowrap}
-.soon .status{background:var(--alt);color:var(--faint)}
-.card h3{margin:4px 0 0;font-size:19px;font-weight:800;line-height:1.4}
-.card .sum{margin:0;color:var(--sub);font-size:14.5px;line-height:1.7}
-.card .meta{margin-top:auto;padding-top:14px;border-top:1px dashed var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;color:var(--faint)}
-.card .meta .go{color:var(--blue);font-weight:700}
-.soon .meta .go{color:var(--faint);font-weight:500}
-.empty{grid-column:1/-1;text-align:center;color:var(--faint);padding:40px 0}
+/* 怎么用 */
+.how{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:56px;align-items:start}
+.steps{list-style:none;margin:0;padding:0;counter-reset:s}
+.steps li{counter-increment:s;display:grid;grid-template-columns:56px 1fr;gap:4px 18px;padding:22px 0;border-top:1px solid var(--line)}
+.steps li:last-child{border-bottom:1px solid var(--line)}
+.steps li::before{content:counter(s);grid-row:span 2;font-size:44px;line-height:1;font-weight:900;color:var(--sky)}
+.steps h3{font-size:19px;font-weight:800;line-height:1.5}
+.steps p{color:var(--sub);font-size:15.5px}
+.kbd{display:inline-block;padding:0 7px;border-radius:6px;background:var(--blue-soft);color:var(--blue);font-weight:700;font-size:.92em;white-space:nowrap}
 
-/* 安装 */
-.tabs{display:inline-flex;flex-wrap:wrap;gap:4px;padding:5px;background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:22px;max-width:100%;overflow-x:auto;scrollbar-width:none}
-.tabs button{flex:none;height:42px;padding:0 18px;border:0;border-radius:10px;background:transparent;font-weight:700;font-size:15px;color:var(--sub);cursor:pointer;white-space:nowrap}
-.tabs button[aria-selected="true"]{background:var(--blue);color:#fff}
-.pane{display:none}.pane.on{display:block}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.step{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:24px;min-width:0;display:flex;flex-direction:column;gap:8px}
-.num{width:36px;height:36px;border-radius:12px;background:var(--orange);color:#fff;display:grid;place-items:center;font-weight:800}
-.step h3{margin:8px 0 0;font-size:18px}
-.step p{margin:0;color:var(--sub);font-size:15px}
-.path{font:13.5px var(--mono);background:var(--alt);border:1px solid var(--line);border-radius:10px;padding:8px 12px;overflow-x:auto;white-space:nowrap;color:var(--ink)}
-.note{margin-top:16px;font-size:14px;color:var(--sub);display:flex;gap:8px;align-items:flex-start}
-.note svg{width:18px;height:18px;flex:none;margin-top:3px;color:var(--orange)}
-.code{display:flex;align-items:center;gap:8px;background:var(--term);color:var(--term-ink);border-radius:12px;padding:8px 8px 8px 14px;font:13px var(--mono);min-width:0}
-.code span{flex:1;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
-.copy{flex:none;font:700 12px var(--sans);color:var(--term-ink);background:rgba(255,255,255,.1);border:0;border-radius:8px;padding:7px 11px;cursor:pointer}
-.copy:hover{background:rgba(255,255,255,.18)}
+.approve-box{position:sticky;top:96px}
+.box-cap{font-weight:800;font-size:17px;margin-bottom:14px}
+.approve{background:#1f2226;color:#d9dde2;border-radius:14px;padding:20px;border:1px solid #30343a;box-shadow:0 24px 48px -28px rgba(20,30,50,.6)}
+.approve .t{display:flex;align-items:center;gap:8px;font-weight:800;color:#f3c49d;font-size:15px}
+.approve .t::before{content:"";width:9px;height:9px;border-radius:50%;background:#ef7d4e}
+.approve p{margin-top:10px;font-size:14px;line-height:1.7;color:#b9c0c8}
+.approve .bt{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.approve .bt span{padding:7px 14px;border-radius:8px;font-size:13.5px;font-weight:700;background:#2c3036;color:#d9dde2}
+.approve .bt .yes{background:#4f8ff0;color:#fff}
+.judge{margin:20px 0 0;padding:0;list-style:none;display:grid;gap:12px;font-size:15.5px}
+.judge li{padding-left:18px;position:relative;color:var(--sub)}
+.judge li::before{content:"";position:absolute;left:0;top:.72em;width:8px;height:8px;border-radius:2px;background:var(--orange)}
+.judge b{color:var(--ink)}
 
-/* FAQ */
-.faq{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.faq details{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:0 20px}
-.faq summary{list-style:none;cursor:pointer;padding:18px 0;font-weight:700;display:flex;justify-content:space-between;gap:16px}
+.also{margin-top:72px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:40px;padding-top:40px;border-top:1px solid var(--line)}
+.also h3{font-size:19px;font-weight:800}
+.also p,.also dd{color:var(--sub);font-size:15.5px}
+.also p{margin-top:8px}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.tools span{padding:4px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);font-size:14px;font-weight:600}
+.tools span.rec{border-color:var(--blue);color:var(--blue)}
+.also dl{margin:12px 0 0}
+.also dt{font-weight:700;margin-top:10px}
+.also dd{margin:2px 0 0}
+.mono{font-family:var(--mono);font-size:.9em;background:var(--blue-soft);color:var(--ink);padding:1px 6px;border-radius:5px;word-break:break-all}
+
+/* 常见问题 */
+#faq{padding-top:24px}
+.faq{max-width:760px}
+.faq details{border-top:1px solid var(--line)}
+.faq details:last-child{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;padding:20px 0;font-weight:800;font-size:18px;display:flex;justify-content:space-between;gap:16px}
 .faq summary::-webkit-details-marker{display:none}
-.faq summary::after{content:"+";color:var(--blue);font-weight:700;font-size:20px;line-height:1}
-.faq details[open] summary::after{content:"−"}
-.faq p{margin:0 0 18px;color:var(--sub);font-size:15px}
+.faq summary::after{content:"";flex:none;width:11px;height:11px;margin:6px 4px 0 0;border-right:2.5px solid var(--sub);border-bottom:2.5px solid var(--sub);transform:rotate(45deg);transition:transform .2s}
+.faq details[open] summary::after{transform:rotate(-135deg);margin-top:12px}
+.faq details p{padding:0 0 22px;color:var(--sub);max-width:40em}
 
-/* 号召 */
-.cta-band .in{display:flex;align-items:center;gap:28px;background:var(--term);color:#fff;border-radius:28px;padding:40px;max-width:1108px}
-.cta-band img{width:110px;height:110px;border-radius:50%;flex:none;border:4px solid rgba(255,255,255,.12)}
-.cta-band h2{font-size:clamp(22px,3vw,30px);margin:0 0 6px}
-.cta-band p{color:#b8c2d0;margin:0 0 18px}
-.btn.bili{background:#fb7299;color:#fff}
-.btn.bili:hover{transform:translateY(-2px)}
-
-footer{padding-block:32px calc(36px + env(safe-area-inset-bottom,0px))}
-footer .in{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--faint)}
-footer a:hover{color:var(--ink)}
+/* 页脚 */
+.foot-cta{padding:72px 0 40px;border-top:1px solid var(--line)}
+.foot-cta .wrap{display:grid;grid-template-columns:auto 1fr auto;gap:28px;align-items:center}
+.foot-cta img{width:88px;height:88px;border-radius:22px}
+.foot-cta h2{font-size:clamp(24px,3vw,32px);font-weight:900;line-height:1.3}
+.foot-cta p{color:var(--sub);margin-top:4px}
+.fine{padding:20px 0 40px;font-size:13.5px;color:var(--faint)}
+.fine .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.fine a{color:var(--sub)}
 
 /* 详情弹窗 */
-dialog{border:0;padding:0;border-radius:22px;width:min(640px,calc(100vw - 24px));max-height:calc(100dvh - 32px);background:var(--panel);color:var(--ink);box-shadow:0 40px 80px -20px rgba(0,0,0,.45)}
-dialog::backdrop{background:rgba(15,20,30,.55);backdrop-filter:blur(3px)}
-.dlg{display:flex;flex-direction:column;max-height:calc(100dvh - 32px)}
-.dlg-head{display:flex;gap:14px;align-items:flex-start;padding:22px 22px 16px;border-bottom:1px solid var(--line)}
-.dlg-head h3{margin:0;font-size:21px}
-.dlg-head p{margin:4px 0 0;color:var(--sub);font-size:14.5px}
-.x{margin-left:auto;flex:none;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:transparent;cursor:pointer;font-size:18px;color:var(--sub)}
-.dlg-body{padding:20px 22px;overflow-y:auto;display:flex;flex-direction:column;gap:22px}
-.dlg-body h4{margin:0 0 8px;font-size:13px;color:var(--orange);font-weight:700;letter-spacing:.04em}
-.dlg-body ul{margin:0;padding-left:20px;color:var(--sub);font-size:15px}
-.dlg-body li{margin:4px 0}
-.say{display:flex;flex-direction:column;gap:8px}
-.code.prompt{align-items:flex-start;padding:12px 10px 12px 14px}.code.prompt span{white-space:normal;line-height:1.7;font-family:var(--sans);font-size:14px}
-.ol{margin:0;padding-left:20px;color:var(--sub);font-size:15px}.ol li{margin:5px 0}
-.files{font:13px var(--mono);color:var(--sub);background:var(--alt);border-radius:12px;padding:12px 14px;line-height:1.8;overflow-x:auto;margin:0}
-.dlg-foot{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;padding:16px 22px;border-top:1px solid var(--line)}
-.dlg-foot .btn{height:44px}
+dialog{border:0;padding:0;border-radius:20px;width:min(640px,calc(100vw - 24px));max-height:calc(100dvh - 32px);background:var(--panel);color:var(--ink);box-shadow:0 40px 80px -20px rgba(0,0,0,.45)}
+dialog::backdrop{background:rgba(15,20,30,.55)}
+.dlg{padding:28px}
+.dlg-head{display:flex;gap:16px;align-items:flex-start}
+.dlg-head h3{font-size:24px;font-weight:900;line-height:1.35}
+.dlg-head p{margin-top:6px;color:var(--sub);font-size:15.5px}
+.x{all:unset;cursor:pointer;margin-left:auto;flex:none;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:22px;color:var(--sub);background:var(--paper)}
+.x:focus-visible{outline:3px solid var(--blue)}
+.dlg h4{font-size:15px;font-weight:800;margin:24px 0 10px}
+.dlg ul,.dlg ol{margin:0;padding-left:1.3em;color:var(--sub);font-size:15.5px}
+.dlg li+li{margin-top:4px}
+.copybox{position:relative;background:#17191c;color:#e3e8ee;border-radius:12px;padding:16px 16px 60px;font-size:14.5px;line-height:1.75}
+.copy{position:absolute;right:12px;bottom:12px;height:36px;padding:0 16px;border-radius:9px;border:0;background:#4f8ff0;color:#fff;font:700 14px/1 var(--sans);cursor:pointer}
+.copy.ok{background:#2f9e6a}
 
-@media (max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:860px){
-  .hero{padding-block:28px 24px}.hero .in{grid-template-columns:1fr;gap:36px}
-  .steps,.faq,.videos{grid-template-columns:1fr}.links a:not(.bili){display:none}
-  section{padding-block:52px}.bubble{position:static;margin-top:12px;max-width:none}.sticker{right:6px;width:70px;height:70px}
-  .cta-band .in{flex-direction:column;text-align:center;padding:32px 22px;border-radius:0}
+@media (max-width:900px){
+  .hero{padding:44px 0 64px}
+  .hero .wrap,.how{grid-template-columns:1fr;gap:40px}
+  .approve-box{position:static}
+  .also{grid-template-columns:1fr;gap:32px}
 }
-@media (max-width:620px){.grid{grid-template-columns:1fr}.lead{font-size:16.5px}.btn{flex:1 1 auto}}
-@media (prefers-reduced-motion:reduce){.card,.btn,.vcard{transition:none}html{scroll-behavior:auto}}
+@media (max-width:720px){
+  .wrap{padding:0 16px}
+  .top nav{display:none}
+  .top .btn.bili{margin-left:auto}
+  .sec{padding:72px 0}
+  .stage{min-height:0;padding:16px 14px 0}
+  .u{max-width:100%;font-size:13.5px}
+  .pond{min-height:140px}
+  .swimmer{width:96px}
+  .tags{grid-template-columns:1fr}
+  .foot-cta .wrap{grid-template-columns:1fr;gap:16px}
+  .foot-cta img{width:64px;height:64px;border-radius:16px}
+  .demo-cap{flex-direction:column;gap:4px}
+  .dlg{padding:22px 18px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
 </style>
 </head>
 <body>
-<header class="nav" id="nav">
-  <div class="in">
-    <a class="brand" href="#top" aria-label="未名的工具箱 首页"><img src="assets/mascot.webp" alt="" width="34" height="34">未名的工具箱</a>
-    <nav class="links" aria-label="主导航">
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#"><img src="assets/mascot.webp" alt="" width="36" height="36">未名的工具箱</a>
+    <nav aria-label="页面导航">
       <a href="#skills">技能包</a>
-      <a href="#start">怎么安装</a>
+      <a href="#how">怎么用</a>
       <a href="#faq">常见问题</a>
       <a href="https://github.com/lius89628-hue/weiming-skills" target="_blank" rel="noopener">GitHub</a>
-      <a class="bili" href="https://space.bilibili.com/3632307703384194" target="_blank" rel="noopener">B站关注</a>
     </nav>
+    <a class="btn bili" href="https://space.bilibili.com/3632307703384194" target="_blank" rel="noopener">B站关注</a>
   </div>
 </header>
 
-<main id="top">
-  <div class="hero">
-    <div class="in">
-      <div>
-        <div class="tag"><span class="dot"></span>免费开源 · 国内直接能用</div>
-        <h1>不会写代码，<br>也能让 AI <span class="hl">替你干活</span></h1>
-        <p class="lead">这里是一些装上就能用的 AI 技能包和玩法，一步一步写清楚怎么用，小白也跟得上。</p>
-        <div class="ctas">
-          <a class="btn primary" href="#skills">挑一个技能包</a>
-          <a class="btn ghost" href="#start">怎么安装</a>
-        </div>
-        <div class="trust">
-          <span><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 10.5l4 4 8-9"/></svg>完全免费</span>
-          <span><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 10.5l4 4 8-9"/></svg>代码公开可查</span>
-          <span><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 10.5l4 4 8-9"/></svg>不碰你的密码</span>
-        </div>
+<main>
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <h1><span class="ln">说清楚一句话，</span><span class="ln">AI 自己把它做出来。</span></h1>
+      <p class="lead">这里收集能直接复制的提示词和技能包，每个都写清楚怎么用。不会写代码也跟得上，用 DeepSeek Harness 国内直接能跑。</p>
+      <div class="acts">
+        <a class="btn primary" href="#skills">看看有哪些</a>
+        <a class="btn line" href="#how">第一次用看这里</a>
       </div>
-      <div class="showcase">
-        <img class="sticker" src="assets/mascot.webp" alt="" width="86" height="86">
-        <div class="shot">
-          <div class="shot-bar"><i></i><i></i><i></i><span>DeepSeek Harness · 实拍</span></div>
-          <img src="assets/demo-whale.webp" alt="DSH 里用一句话做出来的小鲸鱼桌面宠物，点它会说：去喝口水吧，你值得。" width="800" height="495">
+      <p class="note">全部免费，内容在 GitHub 上公开。</p>
+    </div>
+
+    <div class="demo">
+      <div class="win" role="img" aria-label="演示：在 DeepSeek Harness 创造模式里发一段话，它做出一只小鲸鱼桌面宠物">
+        <div class="win-bar"><b>DeepSeek Harness</b><span>默认工作区</span><span class="mode">创造模式</span></div>
+        <div class="stage">
+          <div class="u" id="typed"><span id="typedText"></span><i class="caret"></i></div>
+          <ul class="log" id="log">
+            <li>读自己的源码，找到能放宠物的悬浮层</li>
+            <li>拆成 7 个小任务，派子智能体分头写</li>
+            <li class="ask">等待审批：把插件装进 DSH。你点了「允许一次」</li>
+            <li class="ok">装好了，小鲸鱼上线</li>
+          </ul>
+          <div class="pond">
+            <div class="swimmer" id="swimmer">
+              <div class="say" id="say" aria-live="polite"></div>
+              <button class="whale" id="whale" type="button" aria-label="点一下小鲸鱼">
+                <svg viewBox="0 0 132 100" aria-hidden="true">
+                  <circle class="puff" cx="54" cy="10" r="4" fill="#bfe6fb"/>
+                  <circle class="puff p2" cx="62" cy="4" r="2.6" fill="#bfe6fb"/>
+                  <path d="M94 54 L126 30 Q117 54 126 78 Z" fill="#3d9fe0"/>
+                  <circle cx="58" cy="56" r="40" fill="#7cc6f2"/>
+                  <path d="M19 62 Q58 98 97 62 Q96 96 58 96 Q20 96 19 62 Z" fill="#e4f5fd"/>
+                  <ellipse cx="74" cy="32" rx="12" ry="6.5" fill="#a9dcf8" transform="rotate(-18 74 32)"/>
+                  <path d="M58 78 Q74 64 88 70 Q78 86 58 78 Z" fill="#3d9fe0"/>
+                  <g class="eyes"><circle cx="34" cy="50" r="5.2" fill="#1b2230"/><circle cx="48" cy="50" r="5.2" fill="#1b2230"/><circle cx="35.6" cy="48.4" r="1.7" fill="#fff"/><circle cx="49.6" cy="48.4" r="1.7" fill="#fff"/></g>
+                  <ellipse cx="27" cy="59" rx="4.5" ry="2.6" fill="#f5a3b7" opacity=".85"/>
+                  <path d="M37 61 Q42 65.5 47 61" stroke="#1b2230" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="bubble"><b>实拍</b>一句话，让 DSH 给自己做了只会说话的小鲸鱼</div>
+        <div class="win-input"><span>把你的需求说清楚</span><span class="chip">DeepSeek</span><span class="send"></span></div>
+      </div>
+      <div class="demo-cap"><span>网页重画版，点小鲸鱼试试。真插件在 DSH 窗口里游。</span><button type="button" id="replay">再看一遍</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec wall" id="skills">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>技能包</h2>
+      <p>复制一段话，或者下载一个文件夹，AI 就多会一门手艺。现在上架的不多，会陆续添加。</p>
+    </div>
+    <div class="tags" id="tags"></div>
+  </div>
+</section>
+
+<section class="sec" id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>第一次用，照着做</h2>
+      <p>以「一句话做个桌面宠物」为例，用 DeepSeek Harness（下面简称 DSH）。</p>
+    </div>
+    <div class="how">
+      <ol class="steps">
+        <li><h3>装好 DSH，登录</h3><p>官网下载桌面版。创造模式会消耗 DeepSeek 余额，开始前看一眼余额够不够。</p></li>
+        <li><h3>新建会话，切到 <span class="kbd">创造模式</span></h3><p>输入框上方能切换模式。标准模式是平时干活用的；创造模式允许 DSH 给自己写插件、加功能。</p></li>
+        <li><h3>权限选 <span class="kbd">工作区内修改</span></h3><p>在输入框左下角。它在工作区里可以自己改文件，超出范围会停下来问你。新手用这一档最稳。</p></li>
+        <li><h3>粘贴提示词，发送</h3><p>它会自己研究、写代码、安装，大概十几分钟。中途弹出「等待审批」不用慌，照旁边的办法判断。</p></li>
+      </ol>
+      <div class="approve-box">
+        <p class="box-cap">弹出「等待审批」时</p>
+        <div class="approve" aria-hidden="true">
+          <div class="t">等待审批</div>
+          <p>安装插件「小鲸鱼桌面宠物」到 DeepSeek Harness。安装后会一直保留，代码会在工作区之外运行。</p>
+          <div class="bt"><span>拒绝</span><span class="yes">允许一次</span></div>
+        </div>
+        <ul class="judge">
+          <li><b>先读清楚</b>它要做什么、动哪个文件夹。</li>
+          <li><b>是你让它做的事</b>，比如这次装插件，点「允许一次」。</li>
+          <li><b>看不懂，或者跟任务无关</b>，点「拒绝」，它会换个办法或者来问你。</li>
+          <li><b>别图省事开「完全权限」</b>。手动确认这一步，就是你的安全阀。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="also">
+      <div>
+        <h3>不用 DSH 也行</h3>
+        <p>技能包是开放格式，这些工具都能用。在国内推荐 DSH，接 DeepSeek 直接能跑。</p>
+        <div class="tools"><span class="rec">DeepSeek Harness</span><span>OpenCode</span><span>Cline</span><span>Claude</span><span>Codex</span><span>Cursor</span><span>Gemini CLI</span></div>
+      </div>
+      <div>
+        <h3>文件夹形式的技能包怎么装</h3>
+        <dl>
+          <dt>DeepSeek Harness</dt>
+          <dd>解压，把整个文件夹放进 <span class="mono">C:\Users\你的用户名\.agents\skills\</span>，重启 DSH。</dd>
+          <dt>Claude 网页版</dt>
+          <dd>设置里的「技能」页面，直接上传 ZIP。</dd>
+          <dt>其他命令行工具</dt>
+          <dd>放进各自的 skills 目录，每个技能包里都写了路径。</dd>
+        </dl>
       </div>
     </div>
   </div>
+</section>
 
-  <div class="tools">
-    <div class="in"><strong>适用于</strong>
-      <span class="tool star">DeepSeek Harness <small>国内推荐</small></span>
-      <span class="tool">OpenCode</span><span class="tool">Cline</span><span class="tool">Claude</span><span class="tool">Codex</span><span class="tool">Cursor</span><span class="tool">Gemini CLI</span>
+<section class="sec" id="faq">
+  <div class="wrap">
+    <div class="sec-head"><h2>常见问题</h2></div>
+    <div class="faq">
+      <details><summary>技能包（skill）到底是什么？</summary><p>一个文件夹，里面是一份写给 AI 的「岗位说明书」（SKILL.md），有时还带几个小脚本。AI 读了它，就知道这类活该怎么干、哪些坑要避开。写一次，以后一直能用。</p></details>
+      <details><summary>提示词和技能包有什么区别？</summary><p>提示词是一段话，复制粘贴就能用，适合一次性的事，比如做个宠物插件。技能包是一个文件夹，装好之后 AI 每次遇到这类活都会照着做。</p></details>
+      <details><summary>我在国内，用哪个工具？</summary><p>推荐 DeepSeek Harness（DSH），国内直接能用，DeepSeek 价格也便宜。OpenCode、Cline 这类工具接上国内模型也一样能用。</p></details>
+      <details><summary>要会写代码吗？</summary><p>不用。会打字、会复制粘贴就行。每个技能包都写了一步一步的用法。</p></details>
+      <details><summary>安全吗？会不会动我的账号？</summary><p>所有内容都能在 GitHub 上直接看。这里的提示词和技能包不索要密码、不付费、不改系统安全设置。从别处下载的技能包，安装前也建议先打开看看。</p></details>
+      <details><summary>收费吗？能商用吗？</summary><p>全部免费，MIT 许可，随便用、随便改，商用也可以。</p></details>
     </div>
   </div>
-
-  <section id="skills" class="alt">
-    <div class="in">
-      <div class="head"><div><span class="eyebrow">技能包</span><h2>挑一个，马上能用</h2><p>技能包和玩法会陆续加上来。点开看怎么用。</p></div></div>
-      <div class="bar">
-        <label class="search"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="6"/><path d="M14 14l4 4"/></svg>
-          <input id="q" type="search" placeholder="搜一搜：宠物、PPT、表格…" aria-label="搜索技能包"></label>
-        <div class="chips" id="chips" role="group" aria-label="分类"></div>
-      </div>
-      <div class="grid" id="grid"></div>
-    </div>
-  </section>
-
-  <section id="start">
-    <div class="in">
-      <div class="head"><div><span class="eyebrow">怎么安装</span><h2>三步用起来</h2><p>选你在用的工具。不知道选哪个？国内用户选 DeepSeek Harness。</p></div></div>
-      <div class="tabs" role="tablist" aria-label="选择工具">
-        <button role="tab" aria-selected="true" data-tab="dsh">DeepSeek Harness</button>
-        <button role="tab" aria-selected="false" data-tab="web">Claude 网页版</button>
-        <button role="tab" aria-selected="false" data-tab="cli">命令行工具</button>
-      </div>
-
-      <div class="pane on" id="pane-dsh" role="tabpanel">
-        <div class="steps">
-          <div class="step"><div class="num">1</div><h3>下载并解压</h3><p>在技能包详情里点「下载」，解压后得到一个文件夹，比如 <b>my-skill</b>。</p></div>
-          <div class="step"><div class="num">2</div><h3>放进 skills 文件夹</h3><p>把整个文件夹放到下面这个位置（没有就新建）：</p>
-            <div class="path">C:\Users\你的用户名\.agents\skills\</div><p style="font-size:13.5px">Mac：<span class="mono">~/.agents/skills/</span></p></div>
-          <div class="step"><div class="num">3</div><h3>重启 DSH，直接开口</h3><p>重启后像跟同事说话一样提要求，DSH 会自己用上对应的技能包。</p></div>
-        </div>
-        <p class="note"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="8"/><path d="M10 6v5M10 14h.01"/></svg>做到一半弹出「等待审批」不用慌：先看它要做什么、动哪个文件夹，是你让它做的事就点「允许一次」。</p>
-      </div>
-
-      <div class="pane" id="pane-web" role="tabpanel">
-        <div class="steps">
-          <div class="step"><div class="num">1</div><h3>下载 ZIP</h3><p>在技能包详情里点「下载」，<b>不用解压</b>，直接留着 ZIP 文件。</p></div>
-          <div class="step"><div class="num">2</div><h3>上传到 Claude</h3><p>打开 Claude 设置，先打开「代码执行和文件创建」，再到「技能」页面点「＋」→ 上传技能，选这个 ZIP。</p></div>
-          <div class="step"><div class="num">3</div><h3>打开开关</h3><p>在技能列表里打开它的开关，回到对话直接提要求。菜单名称以实际界面为准。</p></div>
-        </div>
-      </div>
-
-      <div class="pane" id="pane-cli" role="tabpanel">
-        <div class="steps">
-          <div class="step"><div class="num">1</div><h3>下载并解压</h3><p>得到一个以技能名命名的文件夹。</p></div>
-          <div class="step"><div class="num">2</div><h3>放进 skills 目录</h3><p>以 Claude Code 为例，在终端执行：</p>
-            <div class="code"><span id="cmd1">mkdir -p ~/.claude/skills && mv ~/Downloads/my-skill ~/.claude/skills/</span><button class="copy" data-copy="cmd1" type="button">复制</button></div>
-            <p style="font-size:13.5px">其他工具（OpenCode、Codex 等）放进各自的 skills 目录即可。</p></div>
-          <div class="step"><div class="num">3</div><h3>直接开口</h3><p>AI 会根据你的话自动调用对应的技能包。</p>
-            <div class="code"><span id="cmd2">用 my-skill 帮我做……</span><button class="copy" data-copy="cmd2" type="button">复制</button></div></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="faq">
-    <div class="in">
-      <div class="head"><div><span class="eyebrow">常见问题</span><h2>新手最常问的</h2></div></div>
-      <div class="faq">
-        <details><summary>技能包（skill）到底是什么？</summary><p>一个文件夹，里面是一份写给 AI 的「岗位说明书」（SKILL.md），有时还带几个小脚本。AI 读了它，就知道这类活该怎么干、哪些坑要避开。写一次，以后一直能用。</p></details>
-        <details><summary>我在国内，用哪个工具？</summary><p>推荐 DeepSeek Harness（DSH），国内直接能用，DeepSeek 价格也便宜。技能包是开放格式，OpenCode、Cline 这类工具接上国内模型也一样能用。</p></details>
-        <details><summary>要会写代码吗？</summary><p>不用。下载、放进文件夹、重启，然后用中文说你要做什么就行。每个技能包都写了详细步骤。</p></details>
-        <details><summary>安全吗？会不会动我的账号？</summary><p>每个技能包的内容都能在 GitHub 上直接看。规则里写明不索要密码、不付费、不改安全设置。从别处下载的技能包，安装前也建议先打开看看。</p></details>
-        <details><summary>收费吗？能商用吗？</summary><p>全部免费，MIT 许可，随便用、随便改，商用也可以。</p></details>
-        <details><summary>想要的技能包没有？</summary><p>去B站告诉我，呼声高的会优先做。</p></details>
-      </div>
-    </div>
-  </section>
-
-  <section class="cta-band">
-    <div class="in">
-      <img src="assets/mascot.webp" alt="" width="110" height="110">
-      <div>
-        <h2>下一个做什么，你来定</h2>
-        <p>新的技能包和玩法会陆续上架，B站也会陆续出教程。想要什么，去B站告诉我。</p>
-        <a class="btn bili" href="https://space.bilibili.com/3632307703384194" target="_blank" rel="noopener">去B站点菜</a>
-      </div>
-    </div>
-  </section>
+</section>
 </main>
 
-<footer><div class="in">
-  <span>未名是虚构角色，内容由 AI 辅助制作。所有技能包采用 MIT 许可。</span>
-  <span><a href="https://github.com/lius89628-hue/weiming-skills" target="_blank" rel="noopener">GitHub</a> · <a href="https://space.bilibili.com/3632307703384194" target="_blank" rel="noopener">B站</a></span>
-</div></footer>
+<footer>
+  <div class="foot-cta">
+    <div class="wrap">
+      <img src="assets/mascot.webp" alt="" width="88" height="88">
+      <div><h2>下一个做什么，你来定</h2><p>想要什么技能包，去B站评论区告诉我，呼声高的先做。</p></div>
+      <a class="btn primary" href="https://space.bilibili.com/3632307703384194" target="_blank" rel="noopener">去B站留言</a>
+    </div>
+  </div>
+  <div class="fine">
+    <div class="wrap"><span>未名的工具箱，MIT 许可，随便用。</span><a href="https://github.com/lius89628-hue/weiming-skills" target="_blank" rel="noopener">GitHub 仓库</a></div>
+  </div>
+</footer>
 
 <dialog id="dlg" aria-labelledby="dlgTitle"><div class="dlg" id="dlgInner"></div></dialog>
 
 <script>
 const BILI = "https://space.bilibili.com/3632307703384194";
-const ICONS = {
-  "DSH 玩法":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 5.3L20 9l-4.3 3.8L17 18.5 12 15.6 7 18.5l1.3-5.7L4 9l5.8-.7z"/></svg>',
-  "运营增长":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15l3.5-4 3 2.5L20 8"/></svg>',
-  "内容创作":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M8 5v4M16 5v4"/></svg>',
-  "音频":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></svg>',
-  "视频":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg>',
-  "效率工具":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L5 13h6l-1 8 8-10h-6z"/></svg>'
-};
 const SKILLS = [
-  {id:"dsh-desktop-pet", cat:"DSH 玩法", type:"prompt", name:"一句话做个桌面宠物", done:true,
-   sum:"在 DSH 创造模式里粘贴这段话，它会自己写代码、自己安装，做出一只会游泳、会眨眼、点一下会鼓励你的小鲸鱼。",
+  {id:"dsh-desktop-pet", type:"prompt", name:"一句话做个桌面宠物", where:"DSH 创造模式",
+   sum:"粘贴这段话，DSH 会自己写代码、自己安装，做出一只会游泳、会眨眼、点一下会鼓励你的小鲸鱼。",
    can:["原创卡通小鲸鱼，悬浮在 DSH 界面上慢慢游","会眨眼、偶尔吐泡泡，可以用鼠标拖动","点一下冒出一句随机的鼓励话","右键可以藏起来或退出，插件页里有总开关"],
    prompt:"帮我做一个 DSH 的「桌面宠物」插件：一只原创的卡通小鲸鱼，悬浮在界面上，会慢慢游动、眨眼、偶尔吐泡泡；可以用鼠标拖动它；点它一下会冒出一句随机的鼓励话；右键可以隐藏或退出。画风简洁可爱，用代码绘制，不要用网上的图片。做完告诉我怎么开关这个插件。",
-   steps:["打开 DeepSeek Harness，新建会话，选一个工作区","把模式切换到「创造模式」","粘贴上面这段话发送，等它做完（十几分钟，会消耗 DeepSeek 余额）","中途弹出「等待审批」：确认是在安装这个插件，就点「允许一次」"]}
+   steps:["打开 DSH，新建会话，选一个工作区","把模式切换到「创造模式」，权限用「工作区内修改」","粘贴上面这段话发送，等它做完（十几分钟，会消耗 DeepSeek 余额）","弹出「等待审批」时，确认是在安装这个插件，就点「允许一次」","不满意就接着说，比如「换成粉色」「游慢一点」"]}
 ];
-const CATS = ["全部", ...new Set(SKILLS.map(s=>s.cat))];
-const CAT_COLOR = c => "c" + (CATS.indexOf(c) % 3);
-let cat = "全部", q = "";
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-function chips(){
-  $("#chips").innerHTML = CATS.map(c=>`<button type="button" aria-pressed="${c===cat}" data-c="${esc(c)}">${esc(c)}</button>`).join("");
+$("#tags").innerHTML = SKILLS.map(s => `
+  <button class="tag" type="button" data-id="${s.id}">
+    <span class="kind">${s.type==="prompt"?"复制即用":"下载安装"}</span>
+    <h3>${esc(s.name)}</h3><p>${esc(s.sum)}</p>
+    <span class="foot"><span>用在 ${esc(s.where)}</span><b>看用法</b></span>
+  </button>`).join("") + `
+  <a class="tag ask" href="${BILI}" target="_blank" rel="noopener">
+    <h3>你想要什么？</h3><p>剪视频、写周报、整理表格……想让 AI 学会什么，去B站留言。</p>
+    <span class="foot"><span>征集中</span><b>去B站留言</b></span>
+  </a>`;
+
+function openSkill(id){
+  const s = SKILLS.find(x => x.id === id); if (!s) return;
+  $("#dlgInner").innerHTML = `
+    <div class="dlg-head"><div><h3 id="dlgTitle">${esc(s.name)}</h3><p>${esc(s.sum)}</p></div>
+      <button class="x" type="button" aria-label="关闭" data-close>×</button></div>
+    <h4>复制这段话</h4>
+    <div class="copybox"><span id="pmt">${esc(s.prompt)}</span><button class="copy" type="button" data-copy="pmt">复制</button></div>
+    <h4>怎么用</h4><ol>${s.steps.map(i => `<li>${esc(i)}</li>`).join("")}</ol>
+    <h4>做出来是什么样</h4><ul>${s.can.map(i => `<li>${esc(i)}</li>`).join("")}</ul>`;
+  const d = $("#dlg"); d.showModal ? d.showModal() : d.setAttribute("open", "");
 }
-function grid(){
-  const k = q.trim().toLowerCase();
-  const list = SKILLS.filter(s => (cat==="全部"||s.cat===cat) && (!k || (s.name+s.sum+s.id+s.cat).toLowerCase().includes(k)));
-  list.sort((a,b)=>b.done-a.done);
-  $("#grid").innerHTML = list.length ? list.map(s => s.done ? `
-    <button class="card" type="button" data-id="${s.id}">
-      <div class="card-top"><div class="ico ${CAT_COLOR(s.cat)}">${ICONS[s.cat]||""}</div><span class="status">${s.type==="prompt"?"复制即用":"可下载"}</span></div>
-      <h3>${esc(s.name)}</h3><p class="sum">${esc(s.sum)}</p>
-      <div class="meta"><span>${esc(s.cat)}${s.video?" · 视频 "+esc(s.video):""}${s.size?" · "+esc(s.size):""}</span><span class="go">看详情 →</span></div>
-    </button>` : `
-    <div class="card soon">
-      <div class="card-top"><div class="ico">${ICONS[s.cat]||""}</div><span class="status">制作中</span></div>
-      <h3>${esc(s.name)}</h3><p class="sum">${esc(s.sum)}</p>
-      <div class="meta"><span>${esc(s.cat)}</span><span class="go">做好会在B站首发</span></div>
-    </div>`).join("") + ((cat==="全部" && !k) ? `
-    <a class="card soon" href="${BILI}" target="_blank" rel="noopener">
-      <div class="card-top"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div><span class="status">下一个</span></div>
-      <h3>你想要什么？</h3><p class="sum">新的技能包和玩法会陆续上架。想要什么，去B站告诉我，呼声高的先做。</p>
-      <div class="meta"><span>征集中</span><span class="go">去B站点菜 →</span></div>
-    </a>` : "") : `<p class="empty">没找到相关技能包，去B站评论区告诉我你想要什么。</p>`;
-}
-function open(id){
-  const s = SKILLS.find(x=>x.id===id); if(!s) return;
-  const head = `<div class="dlg-head"><div class="ico ${CAT_COLOR(s.cat)}">${ICONS[s.cat]||""}</div>
-      <div><h3 id="dlgTitle">${esc(s.name)}</h3><p>${esc(s.sum)}</p></div>
-      <button class="x" type="button" aria-label="关闭" data-close>×</button></div>`;
-  const can = `<div><h4>能做什么</h4><ul>${s.can.map(i=>`<li>${esc(i)}</li>`).join("")}</ul></div>`;
-  let body, foot;
-  if (s.type === "prompt") {
-    body = can + `<div><h4>复制这段话</h4><div class="code prompt"><span id="pmt">${esc(s.prompt)}</span><button class="copy" data-copy="pmt" type="button">复制</button></div></div>
-      <div><h4>怎么用</h4><ol class="ol">${s.steps.map(i=>`<li>${esc(i)}</li>`).join("")}</ol></div>`;
-    foot = "";
-  } else {
-    body = can + `<div><h4>装好后试试这样说</h4><div class="say">${s.say.map((t,i)=>`<div class="code"><span id="say${i}">${esc(t)}</span><button class="copy" data-copy="say${i}" type="button">复制</button></div>`).join("")}</div></div>
-      <div><h4>怎么安装</h4><ul><li>DeepSeek Harness：解压后把 <b>${esc(s.id)}</b> 文件夹放进 <span class="mono">用户目录\\.agents\\skills\\</span>，重启 DSH</li><li>Claude 网页版：在设置的「技能」页面直接上传 ZIP</li><li>命令行工具：放进各自的 skills 目录</li></ul></div>
-      <div><h4>包里有什么</h4><pre class="files">${esc(s.files)}</pre></div>`;
-    foot = `<a class="btn ghost" href="https://github.com/lius89628-hue/weiming-skills/tree/main/skills/${s.id}" target="_blank" rel="noopener">看源码</a>
-      <a class="btn primary" href="downloads/${s.id}.zip" download>下载 · ${esc(s.size)}</a>`;
-  }
-  $("#dlgInner").innerHTML = head + `<div class="dlg-body">${body}</div>` + (foot ? `<div class="dlg-foot">${foot}</div>` : "");
-  const d = $("#dlg"); d.showModal ? d.showModal() : d.setAttribute("open","");
-}
-chips(); grid();
-$("#chips").addEventListener("click", e => { const b = e.target.closest("button"); if(!b) return; cat = b.dataset.c; chips(); grid(); });
-$("#q").addEventListener("input", e => { q = e.target.value; grid(); });
-$("#grid").addEventListener("click", e => { const c = e.target.closest(".card[data-id]"); if(c) open(c.dataset.id); });
-$("#dlg").addEventListener("click", e => { if(e.target.closest("[data-close]") || e.target===e.currentTarget) e.currentTarget.close(); });
-document.querySelector(".tabs").addEventListener("click", e => {
-  const b = e.target.closest("[data-tab]"); if(!b) return;
-  document.querySelectorAll(".tabs button").forEach(x => x.setAttribute("aria-selected", x===b));
-  document.querySelectorAll(".pane").forEach(p => p.classList.toggle("on", p.id === "pane-" + b.dataset.tab));
-});
+$("#tags").addEventListener("click", e => { const t = e.target.closest(".tag[data-id]"); if (t) openSkill(t.dataset.id); });
+$("#dlg").addEventListener("click", e => { if (e.target.closest("[data-close]") || e.target === e.currentTarget) e.currentTarget.close(); });
 document.addEventListener("click", e => {
-  const b = e.target.closest("[data-copy]"); if(!b) return;
-  const t = document.getElementById(b.dataset.copy).textContent;
-  const ok = () => { const o=b.textContent; b.textContent="已复制"; setTimeout(()=>b.textContent=o,1400); };
-  if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok).catch(()=>{});
+  const b = e.target.closest("[data-copy]"); if (!b) return;
+  const text = document.getElementById(b.dataset.copy).textContent;
+  const done = () => { b.textContent = "已复制"; b.classList.add("ok"); setTimeout(() => { b.textContent = "复制"; b.classList.remove("ok"); }, 1800); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => fallback(text, done)); else fallback(text, done);
 });
-const nav = $("#nav"); addEventListener("scroll", () => nav.classList.toggle("scrolled", scrollY > 8), {passive:true});
+function fallback(text, done){
+  const t = document.createElement("textarea"); t.value = text; t.style.position = "fixed"; t.style.opacity = "0";
+  document.body.appendChild(t); t.select(); try { document.execCommand("copy"); done(); } catch(e) {} t.remove();
+}
+
+/* 首屏演示 */
+const PROMPT = SKILLS[0].prompt;
+const LINES = ["去喝口水吧，你值得。","今天也辛苦啦。","慢慢来，比较快。","你已经做得很好了。","起来伸个懒腰吧。","先做完一小步就好。"];
+let timers = [], li = 0;
+function later(fn, ms){ timers.push(setTimeout(fn, ms)); }
+function play(){
+  timers.forEach(clearTimeout); timers = [];
+  const out = $("#typedText"), box = $("#typed"), items = [...document.querySelectorAll("#log li")], sw = $("#swimmer");
+  box.classList.remove("done"); items.forEach(i => i.classList.remove("on")); sw.classList.remove("on"); out.textContent = "";
+  if (reduce) { out.textContent = PROMPT; box.classList.add("done"); items.forEach(i => i.classList.add("on")); sw.classList.add("on"); return; }
+  let i = 0;
+  (function type(){
+    i += 2; out.textContent = PROMPT.slice(0, i);
+    if (i < PROMPT.length) later(type, 34);
+    else {
+      box.classList.add("done");
+      items.forEach((el, k) => later(() => el.classList.add("on"), 500 + k * 750));
+      later(() => sw.classList.add("on"), 500 + items.length * 750);
+    }
+  })();
+}
+$("#whale").addEventListener("click", () => {
+  const say = $("#say"); say.textContent = LINES[li++ % LINES.length]; say.classList.add("on");
+  clearTimeout(say._t); say._t = setTimeout(() => say.classList.remove("on"), 2400);
+});
+$("#replay").addEventListener("click", play);
+play();
 </script>
 </body>
 </html>
