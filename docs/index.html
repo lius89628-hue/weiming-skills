@@ -115,20 +115,36 @@ h1,h2,h3,h4,p{margin:0}
 .sec-head h2{font-size:clamp(28px,3.6vw,42px);line-height:1.25;font-weight:900}
 .sec-head p{margin-top:12px;color:var(--sub);font-size:17px}
 
-/* 工具墙：洞洞板 + 挂牌 */
-.wall{background-color:var(--board);background-image:radial-gradient(circle at 14px 14px,var(--hole) 3.2px,transparent 3.8px);background-size:28px 28px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.tags{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:28px;align-items:start}
-.tag{position:relative;display:flex;flex-direction:column;text-align:left;font:inherit;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:6px 6px 18px 18px;padding:42px 26px 24px;cursor:pointer;text-decoration:none;box-shadow:0 14px 24px -18px rgba(20,30,50,.35);transition:transform .2s}
-.tag::before{content:"";position:absolute;top:14px;left:50%;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--board);box-shadow:inset 0 1px 2px rgba(0,0,0,.25)}
-.tag:hover{transform:translateY(-3px)}
-.tag .kind{align-self:flex-start;font-size:13px;font-weight:700;color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent);padding:2px 10px;border-radius:6px}
-.tag h3{margin-top:14px;font-size:22px;line-height:1.4;font-weight:800}
-.tag p{margin-top:8px;color:var(--sub);font-size:15.5px}
-.tag .foot{display:flex;justify-content:space-between;gap:12px;margin-top:20px;padding-top:16px;border-top:1px dashed var(--line);font-size:14px;color:var(--faint)}
-.tag .foot b{color:var(--blue)}
-.tag.ask{background:color-mix(in srgb,var(--panel) 45%,transparent);border:2px dashed color-mix(in srgb,var(--sub) 45%,transparent);box-shadow:none}
-.tag.ask::before{background:var(--hole)}
-.tag.ask h3{margin-top:0}
+/* 技能包：顶部分类标签 + 卡片网格 */
+.lib{background:var(--panel);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.lib-bar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+.cats{display:flex;gap:8px;flex-wrap:wrap}
+.cats button{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:700;font-size:15px;color:var(--sub);white-space:nowrap}
+.cats button i{font-style:normal;font-weight:600;font-size:13px;color:var(--faint)}
+.cats button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.cats button[aria-pressed="true"] i{color:inherit;opacity:.7}
+.cats button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.search{margin-left:auto;position:relative;flex:0 1 260px}
+.search input{width:100%;height:40px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:15px;padding:0 16px 0 38px}
+.search svg{position:absolute;left:13px;top:12px;width:16px;height:16px;color:var(--faint)}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.card{display:flex;flex-direction:column;text-align:left;font:inherit;color:inherit;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:22px;cursor:pointer;text-decoration:none;transition:border-color .15s,transform .15s}
+.card:hover{border-color:color-mix(in srgb,var(--blue) 45%,var(--line));transform:translateY(-2px)}
+.card .ctop{display:flex;align-items:center;gap:10px}
+.card .ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;font-size:20px}
+.card .cat{font-size:13.5px;font-weight:700;color:var(--sub)}
+.card .badges{margin-left:auto;display:flex;gap:6px;align-items:center}
+.badge{font-size:12px;font-weight:700;padding:2px 8px;border-radius:6px;white-space:nowrap}
+.badge.b-ok{color:var(--green);background:color-mix(in srgb,var(--green) 13%,transparent)}
+.badge.b-vid{color:#d9487a;background:color-mix(in srgb,#fb7299 15%,transparent)}
+.card h3{margin-top:16px;font-size:19px;line-height:1.45;font-weight:800}
+.card p{margin-top:6px;color:var(--sub);font-size:15px;line-height:1.7;flex:1}
+.card .foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px;font-size:13.5px;color:var(--faint);white-space:nowrap}
+.card .foot b{color:var(--blue)}
+.card.ask{background:transparent;border:2px dashed var(--line);justify-content:center}
+.empty{grid-column:1/-1;padding:40px;text-align:center;color:var(--sub);border:2px dashed var(--line);border-radius:16px}
+.c-dsh{background:#e3eefb;color:#2672c7}.c-file{background:#fdf0e3;color:#c8691c}.c-office{background:#e3f4ea;color:#1f8a58}.c-create{background:#fbe6ee;color:#c23a6b}.c-learn{background:#ece8fb;color:#5b46c4}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ico{filter:brightness(.85) saturate(1.1)}}
 
 /* 怎么用 */
 .how{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:56px;align-items:start}
@@ -199,6 +215,7 @@ dialog::backdrop{background:rgba(15,20,30,.55)}
 .dlg h4{font-size:15px;font-weight:800;margin:24px 0 10px}
 .dlg ul,.dlg ol{margin:0;padding-left:1.3em;color:var(--sub);font-size:15.5px}
 .dlg li+li{margin-top:4px}
+.note{margin-top:16px;padding:10px 14px;border-radius:10px;background:color-mix(in srgb,var(--orange) 12%,transparent);font-size:14px;color:var(--ink)}
 .vid{display:flex;align-items:center;gap:14px;margin-top:20px;padding:14px 16px;border-radius:14px;background:var(--blue-soft);color:var(--ink);text-decoration:none}
 .vid:hover{filter:brightness(.97)}
 .vid .play{flex:none;width:40px;height:40px;border-radius:50%;background:#fb7299;position:relative}
@@ -206,7 +223,7 @@ dialog::backdrop{background:rgba(15,20,30,.55)}
 .vid b{display:block;font-size:16px}
 .vid small{display:block;color:var(--sub);font-size:13.5px}
 .faq details p a,.demo-cap a{color:var(--blue);font-weight:700}
-.copybox{position:relative;background:#17191c;color:#e3e8ee;border-radius:12px;padding:16px 16px 60px;font-size:14.5px;line-height:1.75}
+.copybox{white-space:pre-wrap;position:relative;background:#17191c;color:#e3e8ee;border-radius:12px;padding:16px 16px 60px;font-size:14.5px;line-height:1.75}
 .copy{position:absolute;right:12px;bottom:12px;height:36px;padding:0 16px;border-radius:9px;border:0;background:#4f8ff0;color:#fff;font:700 14px/1 var(--sans);cursor:pointer}
 .copy.ok{background:#2f9e6a}
 
@@ -215,6 +232,7 @@ dialog::backdrop{background:rgba(15,20,30,.55)}
   .hero .wrap,.how{grid-template-columns:1fr;gap:40px}
   .approve-box{position:static}
   .also{grid-template-columns:1fr;gap:32px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:720px){
   .wrap{padding:0 16px}
@@ -225,7 +243,9 @@ dialog::backdrop{background:rgba(15,20,30,.55)}
   .u{max-width:100%;font-size:13.5px}
   .pond{min-height:140px}
   .swimmer{width:96px}
-  .tags{grid-template-columns:1fr}
+  .grid{grid-template-columns:1fr}
+  .cats{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:0 16px 4px;scrollbar-width:none}
+  .search{flex:1 1 100%;margin-left:0}
   .foot-cta .wrap{grid-template-columns:1fr;gap:16px}
   .foot-cta img{width:64px;height:64px;border-radius:16px}
   .demo-cap{flex-direction:column;gap:4px}
@@ -303,13 +323,17 @@ dialog::backdrop{background:rgba(15,20,30,.55)}
   </div>
 </section>
 
-<section class="sec wall" id="skills">
+<section class="sec lib" id="skills">
   <div class="wrap">
     <div class="sec-head">
       <h2>技能包</h2>
-      <p>复制一段话，或者下载一个文件夹，AI 就多会一门手艺。现在上架的不多，会陆续添加。</p>
+      <p>挑一个，复制那段话发给 DSH，它就照着做。带「已实测」的是我亲手跑通过的，其余是常用写法，欢迎试完来B站反馈。</p>
     </div>
-    <div class="tags" id="tags"></div>
+    <div class="lib-bar">
+      <div class="cats" id="cats" role="group" aria-label="按分类筛选"></div>
+      <label class="search"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M14 14l4 4"/></svg><input id="q" type="search" placeholder="搜一下，比如 表格" aria-label="搜索技能包"></label>
+    </div>
+    <div class="grid" id="grid"></div>
   </div>
 </section>
 
@@ -395,41 +419,106 @@ dialog::backdrop{background:rgba(15,20,30,.55)}
 
 <script>
 const BILI = "https://space.bilibili.com/3632307703384194";
+const CATS = [
+  {id:"dsh", name:"DSH 玩法", ico:"🐳"},
+  {id:"file", name:"文件整理", ico:"🗂️"},
+  {id:"office", name:"办公效率", ico:"📊"},
+  {id:"create", name:"内容创作", ico:"✍️"},
+  {id:"learn", name:"学习", ico:"📚"}
+];
 const SKILLS = [
-  {id:"dsh-desktop-pet", type:"prompt", name:"一句话做个桌面宠物", where:"DSH 创造模式", video:"https://www.bilibili.com/video/BV19esf6nEEE",
-   sum:"粘贴这段话，DSH 会自己写代码、自己安装，做出一只会游泳、会眨眼、点一下会鼓励你的小鲸鱼。",
+  {id:"dsh-desktop-pet", cat:"dsh", mode:"创造模式", tested:true, video:"https://www.bilibili.com/video/BV19esf6nEEE",
+   name:"一句话做个桌面宠物",
+   sum:"DSH 自己写代码、自己安装，做出一只会游泳、会眨眼、点一下会鼓励你的小鲸鱼。",
    can:["原创卡通小鲸鱼，悬浮在 DSH 界面上慢慢游","会眨眼、偶尔吐泡泡，可以用鼠标拖动","点一下冒出一句随机的鼓励话","右键可以藏起来或退出，插件页里有总开关"],
    prompt:"帮我做一个 DSH 的「桌面宠物」插件：一只原创的卡通小鲸鱼，悬浮在界面上，会慢慢游动、眨眼、偶尔吐泡泡；可以用鼠标拖动它；点它一下会冒出一句随机的鼓励话；右键可以隐藏或退出。画风简洁可爱，用代码绘制，不要用网上的图片。做完告诉我怎么开关这个插件。",
-   steps:["打开 DSH，新建会话，选一个工作区","把模式切换到「创造模式」，权限用「工作区内修改」","粘贴上面这段话发送，等它做完（十几分钟，会消耗 DeepSeek 余额）","弹出「等待审批」时，确认是在安装这个插件，就点「允许一次」","不满意就接着说，比如「换成粉色」「游慢一点」"]}
+   steps:["打开 DSH，新建会话，选一个工作区","把模式切换到「创造模式」，权限用「工作区内修改」","粘贴上面这段话发送，等它做完（十几分钟，会消耗 DeepSeek 余额）","弹出「等待审批」时，确认是在安装这个插件，就点「允许一次」","不满意就接着说，比如「换成粉色」「游慢一点」"]},
+  {id:"daily-plan", cat:"dsh", mode:"标准模式",
+   name:"每天早上自动列今日计划",
+   sum:"在 DSH 的「自动化任务」里设好，每天固定时间帮你把待办理成一张清单。",
+   can:["每天定时运行，不用你记得打开","按轻重缓急排好顺序","把大事拆成能马上开始的小步骤"],
+   prompt:"帮我建一个每天早上 8 点运行的自动化任务：读取工作区里的「待办.md」，把里面的事情按「必须今天做 / 可以晚点 / 可以不做」分成三组，每件大事拆成 3 个以内马上能开始的小步骤，结果写进「今日计划-日期.md」。如果「待办.md」不存在，先帮我建一个空模板。",
+   steps:["在工作区里放一个「待办.md」，随手写下要做的事","新建会话，粘贴这段话发送","在左侧「自动化任务」里能看到、修改或关掉它"]},
+  {id:"photo-sort", cat:"file", mode:"标准模式",
+   name:"照片按年月自动归档",
+   sum:"一个文件夹里几千张照片，按拍摄日期分到「2024-05」这样的子文件夹里。",
+   can:["读照片里的拍摄日期，读不到就用文件修改时间","先给你看移动计划，你点头才动手","不删任何文件，只移动"],
+   prompt:"帮我整理工作区里「照片」文件夹：按照每张照片的拍摄日期（读 EXIF，没有就用文件修改时间）移动到「年-月」命名的子文件夹里，比如「2024-05」。动手之前先列出移动计划和每个文件夹会有多少张，等我确认再执行。不要删除任何文件，遇到重名就在文件名后面加序号。",
+   steps:["把要整理的照片放进工作区的「照片」文件夹","粘贴这段话发送，先看它给的移动计划","确认没问题再回复「执行」"]},
+  {id:"batch-rename", cat:"file", mode:"标准模式",
+   name:"批量重命名一堆文件",
+   sum:"把「IMG_2931.jpg」「新建文档(3)」这种乱名字，统一改成看得懂的格式。",
+   can:["按你给的规则批量改名","先出一张「旧名字 → 新名字」对照表","改完保留一份对照表，随时能改回去"],
+   prompt:"帮我把工作区「待改名」文件夹里的文件批量重命名，规则是：日期_内容简述_序号，比如「2024-05-01_报价单_01.pdf」。日期用文件修改时间，内容简述根据文件内容或原名推断，不超过 8 个字。先给我一张「旧名字 → 新名字」的对照表，我确认后再改，改完把对照表保存成「改名记录.csv」。",
+   steps:["把文件放进工作区的「待改名」文件夹","粘贴发送，检查对照表，不满意直接说怎么改","确认后回复「执行」"]},
+  {id:"excel-clean", cat:"office", mode:"标准模式",
+   name:"乱表格一键整理干净",
+   sum:"合并单元格、空行、日期格式五花八门的 Excel，整理成一张规范的新表。",
+   can:["去掉空行、重复行和多余空格","统一日期、金额格式","原表不动，另存一份新表"],
+   prompt:"帮我整理工作区里的「原始数据.xlsx」：拆开合并单元格、删掉空行和完全重复的行、去掉多余空格，日期统一成 2024-05-01 格式，金额统一保留两位小数。不要改原文件，另存为「整理后.xlsx」，最后用几句话告诉我改了哪些地方、有没有看不懂需要我确认的数据。",
+   steps:["把表格放进工作区，改名为「原始数据.xlsx」","粘贴发送，等它生成「整理后.xlsx」","看它最后列出的「需要你确认」的地方"]},
+  {id:"weekly-report", cat:"office", mode:"标准模式",
+   name:"零碎记录变周报",
+   sum:"把这周随手记的流水账，整理成一份领导爱看的周报。",
+   can:["自动归类成「完成 / 进行中 / 问题 / 下周计划」","口语改成书面语，不夸大","可以指定字数和语气"],
+   prompt:"下面是我这周随手记的工作记录，帮我整理成周报：分成「本周完成」「进行中」「遇到的问题」「下周计划」四部分，每条一句话，用平实的书面语，不要夸大，不要编造我没写的内容，总字数 400 字以内。\n\n（把你的记录粘贴在这里）",
+   steps:["复制这段话，把最后一行换成你自己的记录","发送，觉得太长就说「再精简一点」"]},
+  {id:"bili-copy", cat:"create", mode:"标准模式",
+   name:"视频稿生成B站标题和简介",
+   sum:"给它口播稿，它出 3 个标题、带时间轴的简介和 10 个标签。",
+   can:["3 个不同风格的标题，不当标题党","按口播稿生成时间轴简介","10 个以内的标签和分区建议"],
+   prompt:"下面是我视频的口播稿，帮我写B站发布文案：1）3 个标题，各 40 字以内，风格分别是「直接说结果」「提问」「教程」，不要夸张标题党；2）一段 100 字以内的简介；3）按稿子内容估算时间轴，每段一行；4）10 个以内的标签；5）建议的分区。\n\n（把口播稿粘贴在这里）",
+   steps:["复制这段话，把最后一行换成你的口播稿","发送，挑一个标题，觉得不顺就让它改"]},
+  {id:"study-notes", cat:"learn", mode:"标准模式",
+   name:"长文章变小白笔记 + 小测验",
+   sum:"一篇看不懂的长文或 PDF，变成一页大白话笔记，再出 5 道题考考你。",
+   can:["用大白话讲清核心意思","专业词旁边加一句解释","最后 5 道选择题，附答案和解析"],
+   prompt:"帮我读工作区里的「资料.pdf」，写一页给完全不懂的人看的笔记：先用三句话说它讲了什么，再分点讲清楚关键内容，专业词第一次出现时在括号里用一句大白话解释。最后出 5 道选择题考我，答案和解析放在最后面。只根据资料内容写，资料里没有的不要补充。",
+   steps:["把文章或 PDF 放进工作区，改名为「资料.pdf」","粘贴发送，先自己做题再看答案"]}
 ];
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-$("#tags").innerHTML = SKILLS.map(s => `
-  <button class="tag" type="button" data-id="${s.id}">
-    <span class="kind">${s.type==="prompt"?"复制即用":"下载安装"}</span>
-    <h3>${esc(s.name)}</h3><p>${esc(s.sum)}</p>
-    <span class="foot"><span>用在 ${esc(s.where)}${s.video?"，有视频教程":""}</span><b>看用法</b></span>
-  </button>`).join("") + `
-  <a class="tag ask" href="${BILI}" target="_blank" rel="noopener">
-    <h3>你想要什么？</h3><p>剪视频、写周报、整理表格……想让 AI 学会什么，去B站留言。</p>
-    <span class="foot"><span>征集中</span><b>去B站留言</b></span>
-  </a>`;
+let cat = "all", kw = "";
+const catOf = id => CATS.find(c => c.id === id);
+function renderCats(){
+  const n = id => SKILLS.filter(s => id === "all" || s.cat === id).length;
+  $("#cats").innerHTML = [{id:"all", name:"全部"}, ...CATS].map(c =>
+    `<button type="button" data-cat="${c.id}" aria-pressed="${c.id === cat}">${esc(c.name)}<i>${n(c.id)}</i></button>`).join("");
+}
+function renderGrid(){
+  const k = kw.trim().toLowerCase();
+  const list = SKILLS.filter(s => (cat === "all" || s.cat === cat) && (!k || (s.name + s.sum + s.prompt + catOf(s.cat).name).toLowerCase().includes(k)));
+  list.sort((a, b) => (b.tested ? 1 : 0) - (a.tested ? 1 : 0));
+  const cards = list.map(s => { const c = catOf(s.cat); return `
+    <button class="card" type="button" data-id="${s.id}">
+      <span class="ctop"><span class="ico c-${c.id}" aria-hidden="true">${c.ico}</span><span class="cat">${esc(c.name)}</span>
+        <span class="badges">${s.tested ? '<span class="badge b-ok">已实测</span>' : ""}${s.video ? '<span class="badge b-vid">有视频</span>' : ""}</span></span>
+      <h3>${esc(s.name)}</h3><p>${esc(s.sum)}</p>
+      <span class="foot"><span>DSH ${esc(s.mode)}</span><b>看用法</b></span>
+    </button>`; }).join("");
+  const ask = `<a class="card ask" href="${BILI}" target="_blank" rel="noopener"><h3>你想要什么？</h3><p>想让 AI 帮你干什么活，去B站评论区说，呼声高的先做。</p><span class="foot"><span>征集中</span><b>去B站留言</b></span></a>`;
+  $("#grid").innerHTML = list.length ? cards + (k ? "" : ask) : `<p class="empty">没找到「${esc(kw)}」相关的。换个词试试，或者<a href="${BILI}" target="_blank" rel="noopener">去B站告诉我你想要什么</a>。</p>`;
+}
+renderCats(); renderGrid();
+$("#cats").addEventListener("click", e => { const b = e.target.closest("[data-cat]"); if (!b) return; cat = b.dataset.cat; renderCats(); renderGrid(); });
+$("#q").addEventListener("input", e => { kw = e.target.value; renderGrid(); });
 
 function openSkill(id){
   const s = SKILLS.find(x => x.id === id); if (!s) return;
   $("#dlgInner").innerHTML = `
     <div class="dlg-head"><div><h3 id="dlgTitle">${esc(s.name)}</h3><p>${esc(s.sum)}</p></div>
       <button class="x" type="button" aria-label="关闭" data-close>×</button></div>
-    ${s.video ? `<a class="vid" href="${s.video}" target="_blank" rel="noopener"><span class="play" aria-hidden="true"></span><span><b>先看视频教程</b><small>B站，4 分钟，从切模式到弹窗怎么点</small></span></a>` : ""}
+    ${s.video ? `<a class="vid" href="${s.video}" target="_blank" rel="noopener"><span class="play" aria-hidden="true"></span><span><b>先看视频教程</b><small>B站视频，一步步跟着做</small></span></a>` : ""}
+    ${s.tested ? "" : `<p class="note">这条是常用写法，还没录视频实测。第一次用时，让它先给你看计划再动手，会更稳。</p>`}
     <h4>复制这段话</h4>
     <div class="copybox"><span id="pmt">${esc(s.prompt)}</span><button class="copy" type="button" data-copy="pmt">复制</button></div>
     <h4>怎么用</h4><ol>${s.steps.map(i => `<li>${esc(i)}</li>`).join("")}</ol>
-    <h4>做出来是什么样</h4><ul>${s.can.map(i => `<li>${esc(i)}</li>`).join("")}</ul>`;
+    <h4>它会做什么</h4><ul>${s.can.map(i => `<li>${esc(i)}</li>`).join("")}</ul>`;
   const d = $("#dlg"); d.showModal ? d.showModal() : d.setAttribute("open", "");
 }
-$("#tags").addEventListener("click", e => { const t = e.target.closest(".tag[data-id]"); if (t) openSkill(t.dataset.id); });
+$("#grid").addEventListener("click", e => { const t = e.target.closest(".card[data-id]"); if (t) openSkill(t.dataset.id); });
 $("#dlg").addEventListener("click", e => { if (e.target.closest("[data-close]") || e.target === e.currentTarget) e.currentTarget.close(); });
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-copy]"); if (!b) return;
