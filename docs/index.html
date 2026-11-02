@@ -4,369 +4,317 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>未名的工具箱</title>
-<meta name="description" content="能直接复制的 AI 提示词和技能包，每个都写清楚怎么用。不会写代码也跟得上，DeepSeek Harness 国内直接能用。免费开源。">
+<meta name="description" content="能直接抄的 AI 提示词和技能包：挑一件事，复制那段话，发给 DeepSeek Harness，它就照着做。不会写代码也跟得上，免费开源。">
 <meta property="og:title" content="未名的工具箱">
-<meta property="og:description" content="说清楚一句话，AI 自己把它做出来。免费开源的 AI 提示词和技能包。">
+<meta property="og:description" content="一句话，让 AI 替你干活。能直接抄的 AI 提示词和技能包，免费开源。">
 <link rel="icon" href="assets/mascot.webp">
 <style>
-/* 未名的工具箱 v2
-   色彩取自吉祥物：天蓝机身、橙色文件夹、深色屏幕。底色偏冷的纸白，技能区是一面洞洞板工具墙。
-   首页主角：仿 DSH 窗口里的实时演示，提示词打出来，小鲸鱼游出来，可以点。 */
+/* 未名的工具箱 v3「抄作业」
+   标题写在稿纸格子里；要抄的那段话用楷体、写在横线纸上，像老师给的范文；
+   实测过的条目盖一个红笔对勾。只有首屏的「挑一件事」是主角，其余保持安静。 */
 :root{
-  --paper:#f2f5f8; --panel:#ffffff; --ink:#1b2230; --sub:#4f5a6b; --faint:#6f7a8a;
-  --line:#dde3ea; --blue:#2672c7; --blue-ink:#ffffff; --blue-soft:#e3eefb;
-  --sky:#7cc6f2; --orange:#ef7d4e; --green:#1f8a58;
-  --board:#e1e8ef; --hole:#c3cfdb;
+  --paper:#f6f8f4; --sheet:#ffffff; --ink:#18223a; --sub:#4d576b; --faint:#7a8396;
+  --rule:#d9e3dc; --grid:#9fc4b2; --grid-soft:#e3eee8;
+  --blue:#2463b8; --blue-soft:#e6eefa; --red:#c8323c; --gold:#b7791f;
+  --kai:"Kaiti SC","STKaiti","KaiTi","KaiTi_GB2312","BiauKai",serif;
   --sans:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Cascadia Mono",monospace;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --paper:#141922; --panel:#1b222d; --ink:#e8edf3; --sub:#a3aebd; --faint:#8995a5;
-  --line:#2a3340; --blue:#6fb0f2; --blue-ink:#0f1722; --blue-soft:#1c2a3b;
-  --orange:#f39468; --green:#4cc28a;
-  --board:#18202a; --hole:#0d1218; color-scheme:dark}
-  .win,.approve{border-color:#3a414b}}
+  --paper:#12171f; --sheet:#1a212b; --ink:#e7ecf2; --sub:#a8b2c0; --faint:#8590a0;
+  --rule:#2b3542; --grid:#3f6b58; --grid-soft:#1f2b29;
+  --blue:#78aef0; --blue-soft:#1d2a3c; --red:#ef6b72; --gold:#e0a448; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --paper:#141922; --panel:#1b222d; --ink:#e8edf3; --sub:#a3aebd; --faint:#8995a5;
-  --line:#2a3340; --blue:#6fb0f2; --blue-ink:#0f1722; --blue-soft:#1c2a3b;
-  --orange:#f39468; --green:#4cc28a;
-  --board:#18202a; --hole:#0d1218; color-scheme:dark}
+  --paper:#12171f; --sheet:#1a212b; --ink:#e7ecf2; --sub:#a8b2c0; --faint:#8590a0;
+  --rule:#2b3542; --grid:#3f6b58; --grid-soft:#1f2b29;
+  --blue:#78aef0; --blue-soft:#1d2a3c; --red:#ef6b72; --gold:#e0a448; color-scheme:dark}
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--paper);color:var(--ink);font:16.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
-img,svg{max-width:100%;height:auto;display:block}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,p,ul,ol,dl,dd{margin:0}
 a{color:inherit}
-h1,h2,h3,h4,p{margin:0}
-:focus-visible{outline:3px solid var(--blue);outline-offset:3px;border-radius:6px}
-.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+img{display:block;max-width:100%;height:auto}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px}
 
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 22px;border-radius:12px;font:700 16px/1 var(--sans);text-decoration:none;border:2px solid transparent;cursor:pointer;white-space:nowrap}
-.btn.primary{background:var(--blue);color:var(--blue-ink)}
-.btn.primary:hover{filter:brightness(1.08)}
-.btn.line{border-color:var(--ink);color:var(--ink);background:transparent}
-.btn.line:hover{background:var(--ink);color:var(--paper)}
-.btn.bili{background:#fb7299;color:#fff;height:40px;padding:0 16px;font-size:15px;border-radius:10px}
-
-.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
-.top .wrap{display:flex;align-items:center;gap:28px;height:64px}
-.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;font-size:18px;letter-spacing:.02em}
-.logo img{width:36px;height:36px;border-radius:10px}
-.top nav{display:flex;gap:24px;margin-left:auto}
-.top nav a{text-decoration:none;color:var(--sub);font-weight:600;font-size:15px}
+/* 顶栏 */
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+.top .wrap{display:flex;align-items:center;gap:28px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;font-size:17px;white-space:nowrap}
+.brand img{width:30px;height:30px;border-radius:8px}
+.top nav{display:flex;gap:22px;margin-left:auto}
+.top nav a{text-decoration:none;color:var(--sub);font-size:15px;font-weight:600}
 .top nav a:hover{color:var(--ink)}
+.bili{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:8px;background:#fb7299;color:#fff;text-decoration:none;font-weight:700;font-size:14.5px;white-space:nowrap}
 
-.hero{padding:72px 0 88px}
-.hero .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);gap:56px;align-items:center}
-.hero h1{font-size:clamp(34px,4.8vw,60px);line-height:1.16;font-weight:900;letter-spacing:-.01em}
-.hero h1 .ln{display:block;white-space:nowrap}
-.hero .lead{margin-top:24px;font-size:18px;color:var(--sub);max-width:30em}
-.hero .acts{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
-.hero .note{margin-top:20px;font-size:14px;color:var(--faint)}
+/* 首屏：稿纸标题 + 挑一件事 */
+.hero{padding:64px 0 72px;background-image:linear-gradient(var(--grid-soft) 1px,transparent 1px),linear-gradient(90deg,var(--grid-soft) 1px,transparent 1px);background-size:28px 28px;background-position:-1px -1px;border-bottom:1px solid var(--rule)}
+.gaozhi{--c:clamp(40px,7.4vw,76px);display:flex;flex-wrap:wrap;margin:0;font:900 calc(var(--c)*.66)/1 var(--sans);letter-spacing:0}
+.gaozhi span{width:var(--c);height:var(--c);display:grid;place-items:center;background:var(--sheet);border:1.5px solid var(--grid);margin:0 -1.5px -1.5px 0}
+.gaozhi span.p{color:var(--grid)}
+.gaozhi .br{flex-basis:100%;height:0;border:0;width:0;margin:0}
+.lede{max-width:34em;margin-top:28px;font-size:18px;color:var(--sub)}
+.lede b{color:var(--ink)}
 
-/* 仿 DSH 窗口：始终深色，和真软件一致 */
-.win{background:#17191c;color:#d9dde2;border-radius:16px;overflow:hidden;box-shadow:0 30px 60px -28px rgba(20,30,50,.55);border:1px solid #2a2e33}
-.win-bar{display:flex;align-items:center;gap:12px;height:42px;padding:0 16px;background:#1f2226;border-bottom:1px solid #2a2e33;font-size:13px;color:#9aa1aa}
-.win-bar b{color:#e6e9ed;font-weight:700}
-.win-bar .mode{margin-left:auto;padding:2px 10px;border-radius:999px;background:#25382b;color:#8fe0ad;font-weight:600}
-.stage{position:relative;padding:20px 20px 0;min-height:430px;display:flex;flex-direction:column}
-.u{align-self:flex-end;max-width:88%;background:#2a3a52;color:#eaf2fc;border-radius:14px 14px 4px 14px;padding:12px 14px;font-size:14px;line-height:1.7;min-height:48px}
-.caret{display:inline-block;width:2px;height:1em;background:#9cc8f5;vertical-align:-2px;margin-left:1px;animation:blink 1s steps(1) infinite}
-.done .caret{display:none}
-@keyframes blink{50%{opacity:0}}
-.log{list-style:none;margin:16px 0 0;padding:0;font-size:13.5px;line-height:1.6;display:grid;gap:8px}
-.log li{display:flex;gap:10px;align-items:flex-start;color:#aeb5be;opacity:0;transform:translateY(4px);transition:opacity .35s,transform .35s}
-.log li.on{opacity:1;transform:none}
-.log li::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:#59606a;margin-top:7px}
-.log li.ask{color:#f3c49d}
-.log li.ask::before{background:#ef7d4e}
-.log li.ok{color:#9be3b8}
-.log li.ok::before{background:#3fbf7a}
-.pond{position:relative;flex:1;min-height:150px}
-.win-input{display:flex;align-items:center;gap:10px;margin:0 14px 14px;padding:12px 14px;border-radius:12px;background:#232629;border:1px solid #30343a;color:#6f7781;font-size:13px}
-.win-input .chip{margin-left:auto;padding:2px 8px;border-radius:6px;background:#2c3036;color:#9aa1aa}
-.win-input .send{width:28px;height:28px;border-radius:50%;background:#4f8ff0;flex:none}
+.pick{margin-top:40px;background:var(--sheet);border:1px solid var(--rule);border-radius:14px;padding:24px 24px 26px;box-shadow:0 1px 0 var(--rule)}
+.pick-q{font-size:17px;font-weight:800}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chips button{all:unset;cursor:pointer;height:38px;padding:0 15px;display:inline-flex;align-items:center;border-radius:999px;border:1px solid var(--rule);background:var(--paper);font-size:15px;font-weight:600;color:var(--sub);white-space:nowrap}
+.chips button:hover{border-color:var(--grid);color:var(--ink)}
+.chips button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.chips button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.pick-out{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:24px;margin-top:20px;align-items:start}
+.pick-side h3{font-size:18px;font-weight:800;line-height:1.45}
+.pick-side p{margin-top:6px;color:var(--sub);font-size:14.5px}
+.pick-side .acts{display:flex;flex-direction:column;gap:8px;margin-top:16px}
 
-/* 小鲸鱼 */
-.swimmer{position:absolute;bottom:18px;left:58%;width:112px;opacity:0;transform:scale(.6);transition:opacity .5s,transform .5s cubic-bezier(.3,1.6,.5,1)}
-.swimmer.on{opacity:1;transform:none;animation:swim 16s ease-in-out infinite}
-.whale{all:unset;cursor:pointer;display:block;width:100%;animation:bob 2.6s ease-in-out infinite}
-.whale:focus-visible{outline:3px solid #9cc8f5;outline-offset:4px;border-radius:50%}
-.whale svg{width:100%}
-.swimmer.on .whale svg{animation:face 16s steps(1) infinite}
-.eyes{transform-box:fill-box;transform-origin:center;animation:wink 4.2s infinite}
-.puff{transform-box:fill-box;transform-origin:center bottom;opacity:0;animation:puff 6s ease-out infinite}
-.puff.p2{animation-delay:.25s}
-@keyframes swim{0%,100%{left:58%}46%,50%{left:4%}96%{left:58%}}
-@keyframes face{0%{transform:none}48%{transform:scaleX(-1)}98%{transform:none}}
-@keyframes bob{50%{transform:translateY(-6px) rotate(-2deg)}}
-@keyframes wink{0%,92%,100%{transform:none}95%{transform:scaleY(.1)}}
-@keyframes puff{0%,70%{opacity:0;transform:translateY(0) scale(.6)}78%{opacity:.9}100%{opacity:0;transform:translateY(-26px) scale(1)}}
-.say{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%) scale(.9);white-space:nowrap;background:#3a3f46;color:#f1f3f5;font-size:13px;padding:6px 12px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
-.say::after{content:"";position:absolute;top:100%;left:50%;margin-left:-6px;border:6px solid transparent;border-top-color:#3a3f46}
-.say.on{opacity:1;transform:translateX(-50%)}
-.demo-cap{display:flex;justify-content:space-between;gap:16px;align-items:baseline;margin-top:14px;font-size:14px;color:var(--faint)}
-.demo-cap button{all:unset;cursor:pointer;color:var(--blue);font-weight:700;white-space:nowrap}
-.demo-cap button:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:4px}
+/* 抄写纸：要复制的那段话 */
+.note{position:relative;margin:0;padding:12px 18px 64px;border-radius:10px;border:1px solid var(--rule);border-left:4px solid var(--grid);font:18px/36px var(--kai);white-space:pre-wrap;word-break:break-word;background:linear-gradient(transparent 35px,var(--rule) 35px) 0 0/100% 36px content-box,var(--sheet)}
+.note .copy{position:absolute;right:12px;bottom:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 18px;border-radius:9px;border:1px solid transparent;font-weight:700;font-size:15px;text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn.solid{background:var(--blue);color:var(--sheet)}
+.btn.solid:hover{filter:brightness(1.07)}
+.btn.line{border-color:var(--rule);background:var(--sheet);color:var(--ink)}
+.btn.line:hover{border-color:var(--grid)}
+.copy.ok{background:#2f8a5a}
 
-.sec{padding:96px 0}
-.sec-head{max-width:640px;margin-bottom:44px}
-.sec-head h2{font-size:clamp(28px,3.6vw,42px);line-height:1.25;font-weight:900}
-.sec-head p{margin-top:12px;color:var(--sub);font-size:17px}
+/* 分区 */
+.sec{padding:88px 0}
+.sec + .sec{border-top:1px solid var(--rule)}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:28px}
+.head h2{font-size:clamp(26px,3.4vw,36px);line-height:1.3;font-weight:900}
+.head p{margin-top:8px;color:var(--sub);max-width:36em}
 
-/* 技能包：顶部分类标签 + 卡片网格 */
-.lib{background:var(--panel);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.lib-bar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:28px}
-.cats{display:flex;gap:8px;flex-wrap:wrap}
-.cats button{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:700;font-size:15px;color:var(--sub);white-space:nowrap}
-.cats button i{font-style:normal;font-weight:600;font-size:13px;color:var(--faint)}
-.cats button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
-.cats button[aria-pressed="true"] i{color:inherit;opacity:.7}
-.cats button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
-.search{margin-left:auto;position:relative;flex:0 1 260px}
-.search input{width:100%;height:40px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:15px;padding:0 16px 0 38px}
-.search svg{position:absolute;left:13px;top:12px;width:16px;height:16px;color:var(--faint)}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
-.card{display:flex;flex-direction:column;text-align:left;font:inherit;color:inherit;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:22px;cursor:pointer;text-decoration:none;transition:border-color .15s,transform .15s}
-.card:hover{border-color:color-mix(in srgb,var(--blue) 45%,var(--line));transform:translateY(-2px)}
-.card .ctop{display:flex;align-items:center;gap:10px}
-.card .ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;font-size:20px}
-.card .cat{font-size:13.5px;font-weight:700;color:var(--sub)}
-.card .badges{margin-left:auto;display:flex;gap:6px;align-items:center}
-.badge{font-size:12px;font-weight:700;padding:2px 8px;border-radius:6px;white-space:nowrap}
-.badge.b-ok{color:var(--green);background:color-mix(in srgb,var(--green) 13%,transparent)}
-.badge.b-vid{color:#d9487a;background:color-mix(in srgb,#fb7299 15%,transparent)}
-.card h3{margin-top:16px;font-size:19px;line-height:1.45;font-weight:800}
-.card p{margin-top:6px;color:var(--sub);font-size:15px;line-height:1.7;flex:1}
-.card .foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px;font-size:13.5px;color:var(--faint);white-space:nowrap}
-.card .foot b{color:var(--blue)}
-.card.ask{background:transparent;border:2px dashed var(--line);justify-content:center}
-.empty{grid-column:1/-1;padding:40px;text-align:center;color:var(--sub);border:2px dashed var(--line);border-radius:16px}
-.c-plug{background:#e2f3f6;color:#1d7f92}.badge.b-cost{color:#c8691c;background:color-mix(in srgb,var(--orange) 14%,transparent)}
-.pmore{margin-top:24px;color:var(--sub);font-size:15px}.pmore a,.note a{color:var(--blue);font-weight:700}
-.dlg-p{color:var(--sub);font-size:15.5px}
-.c-dsh{background:#e3eefb;color:#2672c7}.c-file{background:#fdf0e3;color:#c8691c}.c-office{background:#e3f4ea;color:#1f8a58}.c-create{background:#fbe6ee;color:#c23a6b}.c-learn{background:#ece8fb;color:#5b46c4}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ico{filter:brightness(.85) saturate(1.1)}}
+/* 目录 */
+.bar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:22px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap}
+.tabs button{all:unset;cursor:pointer;padding:6px 12px;border-radius:7px;font-weight:700;font-size:15px;color:var(--sub);white-space:nowrap}
+.tabs button i{font-style:normal;font-weight:500;font-size:13px;color:var(--faint);margin-left:4px}
+.tabs button:hover{background:var(--grid-soft);color:var(--ink)}
+.tabs button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.tabs button[aria-pressed="true"] i{color:inherit;opacity:.7}
+.tabs button:focus-visible{outline:3px solid var(--blue)}
+.search{margin-left:auto;position:relative;flex:0 1 240px}
+.search input{width:100%;height:38px;border-radius:8px;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);font:inherit;font-size:15px;padding:0 12px 0 34px}
+.search svg{position:absolute;left:11px;top:11px;width:16px;height:16px;color:var(--faint)}
 
-/* 怎么用 */
-.how{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:56px;align-items:start}
-.steps{list-style:none;margin:0;padding:0;counter-reset:s}
-.steps li{counter-increment:s;display:grid;grid-template-columns:56px 1fr;gap:4px 18px;padding:22px 0;border-top:1px solid var(--line)}
-.steps li:last-child{border-bottom:1px solid var(--line)}
-.steps li::before{content:counter(s);grid-row:span 2;font-size:44px;line-height:1;font-weight:900;color:var(--sky)}
-.steps h3{font-size:19px;font-weight:800;line-height:1.5}
-.steps p{color:var(--sub);font-size:15.5px}
-.kbd{display:inline-block;padding:0 7px;border-radius:6px;background:var(--blue-soft);color:var(--blue);font-weight:700;font-size:.92em;white-space:nowrap}
+.toc{list-style:none;padding:0;border-top:2px solid var(--ink)}
+.toc li{border-bottom:1px solid var(--rule)}
+.row{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:grid;grid-template-columns:88px minmax(0,1fr) auto;gap:20px;align-items:baseline;padding:18px 6px}
+.row:hover{background:color-mix(in srgb,var(--grid-soft) 60%,transparent)}
+.row:focus-visible{outline:3px solid var(--blue);outline-offset:-3px}
+.row .k{font-size:13.5px;font-weight:700;color:var(--faint);white-space:nowrap}
+.row h3{font-size:18px;font-weight:800;line-height:1.5}
+.row p{color:var(--sub);font-size:15px;margin-top:2px}
+.row .m{display:flex;gap:12px;align-items:center;white-space:nowrap;font-size:13.5px;color:var(--faint)}
+.tick{display:inline-flex;align-items:center;gap:3px;color:var(--red);font:700 15px/1 var(--kai)}
+.tick svg{width:18px;height:18px}
+.vid-t{color:#d9487a;font-weight:700}
+.cost{color:var(--gold);font-weight:700}
+.empty,.ask{padding:22px 6px;color:var(--sub)}
+.ask a,.empty a,.more a,.faq a,.drawer .src a{color:var(--blue);font-weight:700}
 
-.approve-box{position:sticky;top:96px}
-.box-cap{font-weight:800;font-size:17px;margin-bottom:14px}
-.approve{background:#1f2226;color:#d9dde2;border-radius:14px;padding:20px;border:1px solid #30343a;box-shadow:0 24px 48px -28px rgba(20,30,50,.6)}
-.approve .t{display:flex;align-items:center;gap:8px;font-weight:800;color:#f3c49d;font-size:15px}
-.approve .t::before{content:"";width:9px;height:9px;border-radius:50%;background:#ef7d4e}
-.approve p{margin-top:10px;font-size:14px;line-height:1.7;color:#b9c0c8}
-.approve .bt{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
-.approve .bt span{padding:7px 14px;border-radius:8px;font-size:13.5px;font-weight:700;background:#2c3036;color:#d9dde2}
+
+/* 技能包：前后对比卡 */
+.cards{list-style:none;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.card{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;height:100%;width:100%;background:var(--sheet);border:1px solid var(--rule);border-radius:14px;overflow:hidden}
+.card:hover{border-color:var(--grid)}
+.card:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.card .ct{padding:18px 20px 0;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.card .k{font-size:13px;font-weight:700;color:var(--faint)}
+.card h3{font-size:19px;font-weight:900;line-height:1.45;padding:2px 20px 0}
+.lab{display:grid;grid-template-columns:1fr 34px 1fr;margin:14px 20px 6px;font-size:12.5px;color:var(--faint);font-weight:700}
+.lab span:last-child{grid-column:3}
+.ba{display:grid;grid-template-columns:1fr 34px 1fr;align-items:stretch;margin:0 20px 18px;flex:1}
+.ba ul{list-style:none;margin:0;padding:10px 12px;border-radius:9px;font-size:13.5px;line-height:1.55;min-height:92px;display:flex;flex-direction:column;justify-content:center;gap:5px;word-break:break-all}
+.ba .b{background:color-mix(in srgb,var(--faint) 11%,transparent);color:var(--faint)}
+.ba .b li{text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--red) 55%,transparent)}
+.ba .a{background:var(--grid-soft);color:var(--ink);font-weight:700}
+.ba .a li::before{content:"✓ ";color:#2f8a5a}
+.ba .arr{display:grid;place-items:center;font-size:20px;color:var(--grid)}
+.card .f{border-top:1px solid var(--rule);padding:11px 20px;display:flex;justify-content:space-between;gap:12px;font-size:14px;font-weight:700;color:var(--faint)}
+.card .f b{color:var(--blue)}
+.cards .ask,.cards .empty{grid-column:1/-1;padding:18px 4px;color:var(--sub)}
+.cost{color:var(--gold);font-weight:700}
+
+/* 第一次用 */
+.how{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:56px;align-items:start}
+.steps{list-style:none;padding:0;counter-reset:s}
+.steps li{counter-increment:s;display:grid;grid-template-columns:44px 1fr;gap:4px 14px;padding:18px 0;border-bottom:1px solid var(--rule)}
+.steps li::before{content:counter(s);grid-row:span 2;width:36px;height:36px;display:grid;place-items:center;border:1.5px solid var(--grid);background:var(--sheet);font:800 18px/1 var(--sans);color:var(--ink)}
+.steps h3{font-size:17px;font-weight:800}
+.steps p{color:var(--sub);font-size:15px}
+.kbd{display:inline-block;padding:0 7px;border-radius:5px;background:var(--blue-soft);color:var(--blue);font-weight:700}
+.approve-cap{font-weight:800;margin-bottom:12px}
+.approve{border-radius:12px;background:#1e232b;color:#e8ecf2;padding:18px;font-size:14.5px}
+.approve .t{font-weight:800;color:#ffb46b}
+.approve p{margin-top:8px;color:#c4ccd7}
+.approve .bt{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.approve .bt span{padding:5px 12px;border-radius:7px;background:#313844;font-weight:700;font-size:13.5px}
 .approve .bt .yes{background:#4f8ff0;color:#fff}
-.judge{margin:20px 0 0;padding:0;list-style:none;display:grid;gap:12px;font-size:15.5px}
-.judge li{padding-left:18px;position:relative;color:var(--sub)}
-.judge li::before{content:"";position:absolute;left:0;top:.72em;width:8px;height:8px;border-radius:2px;background:var(--orange)}
+.judge{list-style:none;padding:0;margin-top:16px}
+.judge li{padding:6px 0 6px 20px;position:relative;color:var(--sub);font-size:15px}
+.judge li::before{content:"";position:absolute;left:2px;top:15px;width:8px;height:8px;border-radius:50%;background:var(--grid)}
 .judge b{color:var(--ink)}
-
-.also{margin-top:72px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:40px;padding-top:40px;border-top:1px solid var(--line)}
-.also h3{font-size:19px;font-weight:800}
-.also p,.also dd{color:var(--sub);font-size:15.5px}
-.also p{margin-top:8px}
-.tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-.tools span{padding:4px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);font-size:14px;font-weight:600}
-.tools span.rec{border-color:var(--blue);color:var(--blue)}
-.also dl{margin:12px 0 0}
+.also{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:56px;padding-top:36px;border-top:1px solid var(--rule)}
+.also h3{font-size:17px;font-weight:800;margin-bottom:8px}
+.also p,.also dd{color:var(--sub);font-size:15px}
 .also dt{font-weight:700;margin-top:10px}
-.also dd{margin:2px 0 0}
-.mono{font-family:var(--mono);font-size:.9em;background:var(--blue-soft);color:var(--ink);padding:1px 6px;border-radius:5px;word-break:break-all}
+.also code{font:13.5px var(--mono);background:var(--grid-soft);padding:1px 6px;border-radius:4px;word-break:break-all}
+.tools{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.tools span{padding:2px 10px;border-radius:6px;border:1px solid var(--rule);background:var(--sheet);font-size:14px;font-weight:600}
+.tools span.rec{border-color:var(--blue);color:var(--blue)}
 
 /* 常见问题 */
-#faq{padding-top:24px}
 .faq{max-width:760px}
-.faq details{border-top:1px solid var(--line)}
-.faq details:last-child{border-bottom:1px solid var(--line)}
-.faq summary{list-style:none;cursor:pointer;padding:20px 0;font-weight:800;font-size:18px;display:flex;justify-content:space-between;gap:16px}
+.faq details{border-bottom:1px solid var(--rule)}
+.faq summary{cursor:pointer;list-style:none;padding:18px 32px 18px 0;font-weight:800;font-size:17px;position:relative}
 .faq summary::-webkit-details-marker{display:none}
-.faq summary::after{content:"";flex:none;width:11px;height:11px;margin:6px 4px 0 0;border-right:2.5px solid var(--sub);border-bottom:2.5px solid var(--sub);transform:rotate(45deg);transition:transform .2s}
-.faq details[open] summary::after{transform:rotate(-135deg);margin-top:12px}
-.faq details p{padding:0 0 22px;color:var(--sub);max-width:40em}
+.faq summary::after{content:"+";position:absolute;right:4px;top:14px;font-size:24px;font-weight:400;color:var(--faint)}
+.faq details[open] summary::after{content:"−"}
+.faq details p{padding:0 0 20px;color:var(--sub)}
 
 /* 页脚 */
-.foot-cta{padding:72px 0 40px;border-top:1px solid var(--line)}
-.foot-cta .wrap{display:grid;grid-template-columns:auto 1fr auto;gap:28px;align-items:center}
-.foot-cta img{width:88px;height:88px;border-radius:22px}
-.foot-cta h2{font-size:clamp(24px,3vw,32px);font-weight:900;line-height:1.3}
-.foot-cta p{color:var(--sub);margin-top:4px}
-.fine{padding:20px 0 40px;font-size:13.5px;color:var(--faint)}
-.fine .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
-.fine a{color:var(--sub)}
+footer{border-top:1px solid var(--rule);padding:56px 0 40px}
+.foot{display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center}
+.foot img{width:72px;height:72px;border-radius:18px}
+.foot h2{font-size:22px;font-weight:900}
+.foot p{color:var(--sub)}
+.fine{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:40px;font-size:13.5px;color:var(--faint)}
 
-/* 详情弹窗 */
-dialog{border:0;padding:0;border-radius:20px;width:min(640px,calc(100vw - 24px));max-height:calc(100dvh - 32px);background:var(--panel);color:var(--ink);box-shadow:0 40px 80px -20px rgba(0,0,0,.45)}
-dialog::backdrop{background:rgba(15,20,30,.55)}
-.dlg{padding:28px}
-.dlg-head{display:flex;gap:16px;align-items:flex-start}
-.dlg-head h3{font-size:24px;font-weight:900;line-height:1.35}
-.dlg-head p{margin-top:6px;color:var(--sub);font-size:15.5px}
-.x{all:unset;cursor:pointer;margin-left:auto;flex:none;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:22px;color:var(--sub);background:var(--paper)}
+/* 详情：右侧抽屉，手机上从底部出来 */
+dialog.drawer{margin:0 0 0 auto;padding:0;border:0;width:min(560px,100vw);height:100dvh;max-height:100dvh;max-width:100vw;background:var(--paper);color:var(--ink);box-shadow:-20px 0 60px -20px rgba(10,20,40,.4)}
+dialog.drawer::backdrop{background:rgba(12,18,30,.45)}
+dialog.drawer[open]{animation:slide .22s ease-out}
+@keyframes slide{from{transform:translateX(40px);opacity:.4}}
+@media (prefers-reduced-motion:reduce){dialog.drawer[open]{animation:none}}
+.dr{padding:26px 28px 40px}
+.dr-head{display:flex;gap:14px;align-items:flex-start}
+.dr-head .k{font-size:13.5px;font-weight:700;color:var(--faint)}
+.dr-head h3{font-size:24px;font-weight:900;line-height:1.35;margin-top:2px}
+.dr-head p{margin-top:6px;color:var(--sub)}
+.x{all:unset;cursor:pointer;margin-left:auto;flex:none;width:38px;height:38px;border-radius:9px;display:grid;place-items:center;font-size:22px;color:var(--sub);background:var(--sheet);border:1px solid var(--rule)}
 .x:focus-visible{outline:3px solid var(--blue)}
-.dlg h4{font-size:15px;font-weight:800;margin:24px 0 10px}
-.dlg ul,.dlg ol{margin:0;padding-left:1.3em;color:var(--sub);font-size:15.5px}
-.dlg li+li{margin-top:4px}
-.note{margin-top:16px;padding:10px 14px;border-radius:10px;background:color-mix(in srgb,var(--orange) 12%,transparent);font-size:14px;color:var(--ink)}
-.vid{display:flex;align-items:center;gap:14px;margin-top:20px;padding:14px 16px;border-radius:14px;background:var(--blue-soft);color:var(--ink);text-decoration:none}
-.vid:hover{filter:brightness(.97)}
-.vid .play{flex:none;width:40px;height:40px;border-radius:50%;background:#fb7299;position:relative}
-.vid .play::after{content:"";position:absolute;left:16px;top:12px;border:8px solid transparent;border-left:13px solid #fff;border-right:0}
-.vid b{display:block;font-size:16px}
-.vid small{display:block;color:var(--sub);font-size:13.5px}
-.faq details p a,.demo-cap a{color:var(--blue);font-weight:700}
-.copybox{white-space:pre-wrap;position:relative;background:#17191c;color:#e3e8ee;border-radius:12px;padding:16px 16px 60px;font-size:14.5px;line-height:1.75}
-.copy{position:absolute;right:12px;bottom:12px;height:36px;padding:0 16px;border-radius:9px;border:0;background:#4f8ff0;color:#fff;font:700 14px/1 var(--sans);cursor:pointer}
-.copy.ok{background:#2f9e6a}
+.dr h4{font-size:15px;font-weight:800;margin:26px 0 10px}
+.dr ul,.dr ol{padding-left:1.3em;color:var(--sub);font-size:15.5px}
+.dr li+li{margin-top:4px}
+.dr .warn{margin-top:18px;padding:10px 14px;border-radius:9px;background:color-mix(in srgb,var(--gold) 13%,transparent);font-size:14.5px}
+.dr .warn a{color:var(--blue);font-weight:700}
+.dr .plain{color:var(--sub);font-size:15.5px}
+.watch{display:flex;align-items:center;gap:12px;margin-top:20px;padding:12px 14px;border-radius:10px;background:var(--sheet);border:1px solid var(--rule);text-decoration:none}
+.watch .pl{flex:none;width:36px;height:36px;border-radius:50%;background:#fb7299;position:relative}
+.watch .pl::after{content:"";position:absolute;left:14px;top:11px;border:7px solid transparent;border-left:11px solid #fff;border-right:0}
+.watch b{display:block}
+.watch small{color:var(--sub);font-size:13.5px}
+.cmd{font:14px/1.7 var(--mono);white-space:pre-wrap;word-break:break-all;background:#1e232b;color:#e3e8ee;border-radius:10px;padding:14px 14px 60px;position:relative}
+.cmd .copy{position:absolute;right:12px;bottom:12px}
 
-@media (max-width:900px){
-  .hero{padding:44px 0 64px}
-  .hero .wrap,.how{grid-template-columns:1fr;gap:40px}
-  .approve-box{position:static}
-  .also{grid-template-columns:1fr;gap:32px}
-  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media (max-width:720px){
-  .wrap{padding:0 16px}
+@media (max-width:860px){
   .top nav{display:none}
-  .top .btn.bili{margin-left:auto}
-  .sec{padding:72px 0}
-  .stage{min-height:0;padding:16px 14px 0}
-  .u{max-width:100%;font-size:13.5px}
-  .pond{min-height:140px}
-  .swimmer{width:96px}
-  .grid{grid-template-columns:1fr}
-  .cats{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:0 16px 4px;scrollbar-width:none}
-  .search{flex:1 1 100%;margin-left:0}
-  .foot-cta .wrap{grid-template-columns:1fr;gap:16px}
-  .foot-cta img{width:64px;height:64px;border-radius:16px}
-  .demo-cap{flex-direction:column;gap:4px}
-  .dlg{padding:22px 18px}
+  .top .bili{margin-left:auto}
+  .pick-out{grid-template-columns:1fr}
+  .how,.also{grid-template-columns:1fr;gap:36px}
 }
-@media (prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
-  *,*::before,*::after{animation:none!important;transition:none!important}
+@media (max-width:640px){
+  .wrap{padding:0 16px}
+  .hero{padding:40px 0 48px}
+  .gaozhi{--c:clamp(34px,10.4vw,48px)}
+  .lede{font-size:16.5px}
+  .pick{padding:18px 16px 20px;margin-left:-4px;margin-right:-4px}
+  .chips{flex-wrap:nowrap;overflow-x:auto;margin:14px -16px 0;padding:0 16px 4px;scrollbar-width:none}
+  .note{font-size:17px}
+  .sec{padding:64px 0}
+  .tabs{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:0 16px 2px;scrollbar-width:none}
+  .search{flex:1 1 100%;margin-left:0}
+  .cards{grid-template-columns:1fr;gap:14px}
+  .card h3{font-size:18px}
+  .foot{grid-template-columns:1fr}
+  dialog.drawer{margin:auto 0 0;width:100vw;height:auto;max-height:88dvh;border-radius:16px 16px 0 0}
+  @keyframes slide{from{transform:translateY(40px);opacity:.4}}
+  .dr{padding:20px 16px 32px}
 }
 </style>
 </head>
 <body>
-
 <header class="top">
   <div class="wrap">
-    <a class="logo" href="#"><img src="assets/mascot.webp" alt="" width="36" height="36">未名的工具箱</a>
+    <a class="brand" href="#"><img src="assets/mascot.webp" alt="" width="30" height="30">未名的工具箱</a>
     <nav aria-label="页面导航">
       <a href="#skills">技能包</a>
-      <a href="#plugins">插件推荐</a>
-      <a href="#how">怎么用</a>
+      <a href="#plugins">插件</a>
+      <a href="#how">第一次用</a>
       <a href="#faq">常见问题</a>
       <a href="https://github.com/lius89628-hue/weiming-skills" target="_blank" rel="noopener">GitHub</a>
     </nav>
-    <a class="btn bili" href="https://space.bilibili.com/3632307703384194" target="_blank" rel="noopener">B站关注</a>
+    <a class="bili" href="https://space.bilibili.com/3632307703384194" target="_blank" rel="noopener">B站关注</a>
   </div>
 </header>
 
 <main>
 <section class="hero">
   <div class="wrap">
-    <div>
-      <h1><span class="ln">说清楚一句话，</span><span class="ln">AI 自己把它做出来。</span></h1>
-      <p class="lead">这里收集能直接复制的提示词和技能包，每个都写清楚怎么用。不会写代码也跟得上，用 DeepSeek Harness 国内直接能跑。</p>
-      <div class="acts">
-        <a class="btn primary" href="#skills">看看有哪些</a>
-        <a class="btn line" href="#how">第一次用看这里</a>
-      </div>
-      <p class="note">全部免费，内容在 GitHub 上公开。</p>
-    </div>
+    <h1 class="gaozhi" id="gz" aria-label="一句话，让AI替你干活。">一句话，让AI替你干活。</h1>
+    <p class="lede">这里是能直接抄的「作业」：挑一件事，<b>复制那段话</b>，发给 DeepSeek Harness（DSH），它就照着做。不会写代码也跟得上，全部免费。</p>
 
-    <div class="demo">
-      <div class="win" role="img" aria-label="演示：在 DeepSeek Harness 创造模式里发一段话，它做出一只小鲸鱼桌面宠物">
-        <div class="win-bar"><b>DeepSeek Harness</b><span>默认工作区</span><span class="mode">创造模式</span></div>
-        <div class="stage">
-          <div class="u" id="typed"><span id="typedText"></span><i class="caret"></i></div>
-          <ul class="log" id="log">
-            <li>读自己的源码，找到能放宠物的悬浮层</li>
-            <li>拆成 7 个小任务，派子智能体分头写</li>
-            <li class="ask">等待审批：把插件装进 DSH。你点了「允许一次」</li>
-            <li class="ok">装好了，小鲸鱼上线</li>
-          </ul>
-          <div class="pond">
-            <div class="swimmer" id="swimmer">
-              <div class="say" id="say" aria-live="polite"></div>
-              <button class="whale" id="whale" type="button" aria-label="点一下小鲸鱼">
-                <svg viewBox="0 0 132 100" aria-hidden="true">
-                  <circle class="puff" cx="54" cy="10" r="4" fill="#bfe6fb"/>
-                  <circle class="puff p2" cx="62" cy="4" r="2.6" fill="#bfe6fb"/>
-                  <path d="M94 54 L126 30 Q117 54 126 78 Z" fill="#3d9fe0"/>
-                  <circle cx="58" cy="56" r="40" fill="#7cc6f2"/>
-                  <path d="M19 62 Q58 98 97 62 Q96 96 58 96 Q20 96 19 62 Z" fill="#e4f5fd"/>
-                  <ellipse cx="74" cy="32" rx="12" ry="6.5" fill="#a9dcf8" transform="rotate(-18 74 32)"/>
-                  <path d="M58 78 Q74 64 88 70 Q78 86 58 78 Z" fill="#3d9fe0"/>
-                  <g class="eyes"><circle cx="34" cy="50" r="5.2" fill="#1b2230"/><circle cx="48" cy="50" r="5.2" fill="#1b2230"/><circle cx="35.6" cy="48.4" r="1.7" fill="#fff"/><circle cx="49.6" cy="48.4" r="1.7" fill="#fff"/></g>
-                  <ellipse cx="27" cy="59" rx="4.5" ry="2.6" fill="#f5a3b7" opacity=".85"/>
-                  <path d="M37 61 Q42 65.5 47 61" stroke="#1b2230" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-                </svg>
-              </button>
-            </div>
-          </div>
+    <div class="pick">
+      <p class="pick-q" id="pickq">今天想让它帮你做什么？</p>
+      <div class="chips" id="chips" role="group" aria-labelledby="pickq"></div>
+      <div class="pick-out">
+        <pre class="note" id="pickNote"><span id="pickText"></span><button class="btn solid copy" type="button" data-copy="pickText">复制这段话</button></pre>
+        <div class="pick-side">
+          <h3 id="pickName"></h3>
+          <p id="pickSum"></p>
+          <div class="acts"><button class="btn line" type="button" id="pickMore">看完整用法</button><a class="btn line" href="#how">第一次用 DSH</a></div>
         </div>
-        <div class="win-input"><span>把你的需求说清楚</span><span class="chip">DeepSeek</span><span class="send"></span></div>
       </div>
-      <div class="demo-cap"><span>网页重画版，点小鲸鱼试试。完整过程看<a href="https://www.bilibili.com/video/BV19esf6nEEE" target="_blank" rel="noopener">B站视频教程</a>。</span><button type="button" id="replay">再看一遍</button></div>
     </div>
   </div>
 </section>
 
-<section class="sec lib" id="skills">
+<section class="sec" id="skills">
   <div class="wrap">
-    <div class="sec-head">
+    <div class="head"><div>
       <h2>技能包</h2>
-      <p>挑一个，复制那段话发给 DSH，它就照着做。带「已实测」的是我亲手跑通过的，其余是常用写法，欢迎试完来B站反馈。</p>
-    </div>
-    <div class="lib-bar">
-      <div class="cats" id="cats" role="group" aria-label="按分类筛选"></div>
+      <p>每一条都是一段能直接复制的话。打了红勾的是未名亲手跑通、录过视频的；其余是常用写法，第一次用时让它先给你看计划再动手。</p>
+    </div></div>
+    <div class="bar">
+      <div class="tabs" id="cats" role="group" aria-label="按分类筛选"></div>
       <label class="search"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M14 14l4 4"/></svg><input id="q" type="search" placeholder="搜一下，比如 表格" aria-label="搜索技能包"></label>
     </div>
-    <div class="grid" id="grid"></div>
+    <ul class="cards" id="grid"></ul>
   </div>
 </section>
 
 <section class="sec" id="plugins">
   <div class="wrap">
-    <div class="sec-head">
+    <div class="head"><div>
       <h2>DSH 插件推荐</h2>
-      <p>技能包教 AI 怎么干活，插件给 DSH 加新功能。这几个是社区里适合新手的，点开有一段话，复制给 DSH 让它自己装。</p>
-    </div>
-    <div class="grid" id="pgrid"></div>
-    <p class="pmore">更多插件：在 DSH「设置 → 插件市场」里逛，或者在 GitHub 搜 <a href="https://github.com/topics/dsh-plugin" target="_blank" rel="noopener">dsh-plugin</a>。第三方插件装之前先看一眼说明，弹出「等待审批」时读清楚再点。</p>
+      <p>技能包教 AI 怎么干活，插件给 DSH 加新功能。下面几个是社区作者做的、适合新手的，点开有一段话，复制给 DSH 让它自己装。</p>
+    </div></div>
+    <ul class="cards" id="pgrid"></ul>
+    <p class="more" style="margin-top:20px;color:var(--sub);font-size:15px">想找更多：在 DSH「设置 → 插件市场」里逛，或者在 GitHub 搜 <a href="https://github.com/topics/dsh-plugin" target="_blank" rel="noopener">dsh-plugin</a>。第三方插件装之前先看一眼说明。</p>
   </div>
 </section>
 
 <section class="sec" id="how">
   <div class="wrap">
-    <div class="sec-head">
+    <div class="head"><div>
       <h2>第一次用，照着做</h2>
       <p>以「一句话做个桌面宠物」为例，用 DeepSeek Harness（下面简称 DSH）。</p>
-    </div>
+    </div></div>
     <div class="how">
       <ol class="steps">
         <li><h3>装好 DSH，登录</h3><p>官网下载桌面版。创造模式会消耗 DeepSeek 余额，开始前看一眼余额够不够。</p></li>
         <li><h3>新建会话，切到 <span class="kbd">创造模式</span></h3><p>输入框上方能切换模式。标准模式是平时干活用的；创造模式允许 DSH 给自己写插件、加功能。</p></li>
         <li><h3>权限选 <span class="kbd">工作区内修改</span></h3><p>在输入框左下角。它在工作区里可以自己改文件，超出范围会停下来问你。新手用这一档最稳。</p></li>
-        <li><h3>粘贴提示词，发送</h3><p>它会自己研究、写代码、安装，大概十几分钟。中途弹出「等待审批」不用慌，照旁边的办法判断。</p></li>
+        <li><h3>粘贴那段话，发送</h3><p>它会自己研究、写代码、安装，大概十几分钟。中途弹出「等待审批」不用慌，照右边的办法判断。</p></li>
       </ol>
-      <div class="approve-box">
-        <p class="box-cap">弹出「等待审批」时</p>
+      <div>
+        <p class="approve-cap">弹出「等待审批」时</p>
         <div class="approve" aria-hidden="true">
           <div class="t">等待审批</div>
           <p>安装插件「小鲸鱼桌面宠物」到 DeepSeek Harness。安装后会一直保留，代码会在工作区之外运行。</p>
@@ -380,20 +328,17 @@ dialog::backdrop{background:rgba(15,20,30,.55)}
         </ul>
       </div>
     </div>
-
     <div class="also">
       <div>
         <h3>不用 DSH 也行</h3>
         <p>技能包是开放格式，这些工具都能用。在国内推荐 DSH，接 DeepSeek 直接能跑。</p>
-        <div class="tools"><span class="rec">DeepSeek Harness</span><span>OpenCode</span><span>Cline</span><span>Claude</span><span>Codex</span><span>Cursor</span><span>Gemini CLI</span></div>
+        <div class="tools"><span class="rec">DeepSeek Harness</span><span>OpenCode</span><span>Cline</span><span>Codex</span><span>Cursor</span><span>Gemini CLI</span></div>
       </div>
       <div>
         <h3>文件夹形式的技能包怎么装</h3>
         <dl>
           <dt>DeepSeek Harness</dt>
-          <dd>解压，把整个文件夹放进 <span class="mono">C:\Users\你的用户名\.agents\skills\</span>，重启 DSH。</dd>
-          <dt>Claude 网页版</dt>
-          <dd>设置里的「技能」页面，直接上传 ZIP。</dd>
+          <dd>解压，把整个文件夹放进 <code>C:\Users\你的用户名\.agents\skills\</code>，重启 DSH。</dd>
           <dt>其他命令行工具</dt>
           <dd>放进各自的 skills 目录，每个技能包里都写了路径。</dd>
         </dl>
@@ -404,14 +349,14 @@ dialog::backdrop{background:rgba(15,20,30,.55)}
 
 <section class="sec" id="faq">
   <div class="wrap">
-    <div class="sec-head"><h2>常见问题</h2></div>
+    <div class="head"><div><h2>常见问题</h2></div></div>
     <div class="faq">
       <details><summary>技能包（skill）到底是什么？</summary><p>一个文件夹，里面是一份写给 AI 的「岗位说明书」（SKILL.md），有时还带几个小脚本。AI 读了它，就知道这类活该怎么干、哪些坑要避开。写一次，以后一直能用。第一期视频专门讲这个：<a href="https://www.bilibili.com/video/BV1nrxF6vEzB" target="_blank" rel="noopener">什么是 Skill，7 分钟讲透</a>。</p></details>
       <details><summary>提示词和技能包有什么区别？</summary><p>提示词是一段话，复制粘贴就能用，适合一次性的事，比如做个宠物插件。技能包是一个文件夹，装好之后 AI 每次遇到这类活都会照着做。</p></details>
       <details><summary>插件和技能包有什么区别？</summary><p>技能包是给 AI 看的说明书，教它怎么把某类活干好；插件是给 DSH 装的新功能，比如多一个面板、能画图表。技能包放进文件夹就能用，插件要安装，装的时候 DSH 会弹窗问你。</p></details>
       <details><summary>我在国内，用哪个工具？</summary><p>推荐 DeepSeek Harness（DSH），国内直接能用，DeepSeek 价格也便宜。OpenCode、Cline 这类工具接上国内模型也一样能用。</p></details>
-      <details><summary>要会写代码吗？</summary><p>不用。会打字、会复制粘贴就行。每个技能包都写了一步一步的用法。</p></details>
-      <details><summary>安全吗？会不会动我的账号？</summary><p>所有内容都能在 GitHub 上直接看。这里的提示词和技能包不索要密码、不付费、不改系统安全设置。从别处下载的技能包，安装前也建议先打开看看。</p></details>
+      <details><summary>要会写代码吗？</summary><p>不用。会打字、会复制粘贴就行。每一条都写了一步一步的用法。</p></details>
+      <details><summary>安全吗？会不会动我的账号？</summary><p>所有内容都能在 GitHub 上直接看。这里的提示词和技能包不索要密码、不付费、不改系统安全设置；整理文件的那几条都要求它只移动不删除。从别处下载的技能包，安装前也建议先打开看看。</p></details>
       <details><summary>收费吗？能商用吗？</summary><p>全部免费，MIT 许可，随便用、随便改，商用也可以。</p></details>
     </div>
   </div>
@@ -419,19 +364,17 @@ dialog::backdrop{background:rgba(15,20,30,.55)}
 </main>
 
 <footer>
-  <div class="foot-cta">
-    <div class="wrap">
-      <img src="assets/mascot.webp" alt="" width="88" height="88">
-      <div><h2>下一个做什么，你来定</h2><p>想要什么技能包，去B站评论区告诉我，呼声高的先做。</p></div>
-      <a class="btn primary" href="https://space.bilibili.com/3632307703384194" target="_blank" rel="noopener">去B站留言</a>
+  <div class="wrap">
+    <div class="foot">
+      <img src="assets/mascot.webp" alt="" width="72" height="72">
+      <div><h2>下一条写什么，你来定</h2><p>想让 AI 帮你干什么活，去B站评论区告诉未名，呼声高的先做。</p></div>
+      <a class="btn solid" href="https://space.bilibili.com/3632307703384194" target="_blank" rel="noopener">去B站留言</a>
     </div>
-  </div>
-  <div class="fine">
-    <div class="wrap"><span>未名的工具箱，MIT 许可，随便用。</span><a href="https://github.com/lius89628-hue/weiming-skills" target="_blank" rel="noopener">GitHub 仓库</a></div>
+    <div class="fine"><span>未名的工具箱，MIT 许可，随便用。</span><a href="https://github.com/lius89628-hue/weiming-skills" target="_blank" rel="noopener">GitHub 仓库</a></div>
   </div>
 </footer>
 
-<dialog id="dlg" aria-labelledby="dlgTitle"><div class="dlg" id="dlgInner"></div></dialog>
+<dialog class="drawer" id="dlg" aria-labelledby="dlgTitle"><div class="dr" id="dlgInner"></div></dialog>
 
 <script>
 const BILI = "https://space.bilibili.com/3632307703384194";
@@ -443,103 +386,169 @@ const CATS = [
   {id:"learn", name:"学习", ico:"📚"}
 ];
 const SKILLS = [
-  {id:"dsh-desktop-pet", cat:"dsh", mode:"创造模式", tested:true, video:"https://www.bilibili.com/video/BV19esf6nEEE",
+  {id:"dsh-desktop-pet", ba:{b:["一句话"],a:["会游泳的小鲸鱼", "点一下鼓励你"]}, cat:"dsh", mode:"创造模式", tested:true, video:"https://www.bilibili.com/video/BV19esf6nEEE",
    name:"一句话做个桌面宠物",
    sum:"DSH 自己写代码、自己安装，做出一只会游泳、会眨眼、点一下会鼓励你的小鲸鱼。",
    can:["原创卡通小鲸鱼，悬浮在 DSH 界面上慢慢游","会眨眼、偶尔吐泡泡，可以用鼠标拖动","点一下冒出一句随机的鼓励话","右键可以藏起来或退出，插件页里有总开关"],
    prompt:"帮我做一个 DSH 的「桌面宠物」插件：一只原创的卡通小鲸鱼，悬浮在界面上，会慢慢游动、眨眼、偶尔吐泡泡；可以用鼠标拖动它；点它一下会冒出一句随机的鼓励话；右键可以隐藏或退出。画风简洁可爱，用代码绘制，不要用网上的图片。做完告诉我怎么开关这个插件。",
    steps:["打开 DSH，新建会话，选一个工作区","把模式切换到「创造模式」，权限用「工作区内修改」","粘贴上面这段话发送，等它做完（十几分钟，会消耗 DeepSeek 余额）","弹出「等待审批」时，确认是在安装这个插件，就点「允许一次」","不满意就接着说，比如「换成粉色」「游慢一点」"]},
-  {id:"dsh-desktop-pet-2", cat:"dsh", mode:"创造模式", tested:true, video:"https://www.bilibili.com/video/BV15gxC61E9Y",
+  {id:"dsh-desktop-pet-2", ba:{b:["小鲸鱼桌宠"],a:["7 种表情", "换配色、换造型"]}, cat:"dsh", mode:"创造模式", tested:true, video:"https://www.bilibili.com/video/BV15gxC61E9Y",
    name:"桌宠 2.0：原创二次元看板娘",
    sum:"把上一个小鲸鱼桌宠升级成原创角色「小鲸娘」：表情跟着 DSH 的状态变，右键还能换配色、换造型。",
    can:["7 种表情：思考得意、完成庆祝、拒绝授权委屈、任务超 5 分钟心疼钱、深夜困了、连戳喊疼","单击随机说一句话，可以拖动，保留隐藏、退出和插件开关","右键换配色、换造型，选完立刻生效并记住；没素材的组合自动灰掉","素材复制进插件目录，老插件保留做备份"],
    prompt:"帮我把之前做的「小鲸鱼桌面宠物」插件升级成 2.0：换成工作区「小鲸娘」文件夹里的原创角色小鲸娘。\n素材说明：manifest.json 里写了全部配色、造型、表情；「动画」文件夹里是带透明背景的 webm 动画，优先用它；同名的 png 当备用。请把要用的素材复制进插件自己的目录里，不要依赖桌面上的路径。\n要的效果：\n1. 平时显示「日常微笑」，可以拖动，保留原来的右键隐藏、退出和插件开关。\n2. 表情跟着 DSH 的状态变：我发消息后它在思考时显示「得意眯眼笑」；任务完成时「开心庆祝」3 秒；弹出授权被我拒绝时「委屈含泪」；同一个任务跑超过 5 分钟显示「心疼钱」；晚上 12 点到早上 6 点自动「困了」；1 秒内连续点她 3 下显示「被戳疼」，单击就说一句随机的可爱台词。\n3. 右键菜单加「换配色」和「换造型」两项，列出 manifest 里有的组合，选完立刻生效并记住，下次打开还是这一套。暂时没有素材的组合就灰掉不让选。\n4. 做完告诉我改了哪些文件、怎么测试每个表情。",
    steps:["先准备好角色素材（透明 PNG 或 webm 动画）和一个说明文件，放进工作区的「小鲸娘」文件夹；角色请用原创形象","新建会话，切到「创造模式」，工作区选放素材的文件夹","粘贴这段话发送，它会先研究插件写法，二三十分钟左右","安装插件的授权确认后点允许；想删老插件的授权可以拒绝，留着备份","做完按它给的方法逐个测试表情，不满意接着说"]},
-  {id:"daily-plan", cat:"dsh", mode:"标准模式",
+  {id:"daily-plan", ba:{b:["待办.md 里一堆事"],a:["今天必须做 3 件", "每件拆成小步骤"]}, cat:"dsh", mode:"标准模式",
    name:"每天早上自动列今日计划",
    sum:"在 DSH 的「自动化任务」里设好，每天固定时间帮你把待办理成一张清单。",
    can:["每天定时运行，不用你记得打开","按轻重缓急排好顺序","把大事拆成能马上开始的小步骤"],
    prompt:"帮我建一个每天早上 8 点运行的自动化任务：读取工作区里的「待办.md」，把里面的事情按「必须今天做 / 可以晚点 / 可以不做」分成三组，每件大事拆成 3 个以内马上能开始的小步骤，结果写进「今日计划-日期.md」。如果「待办.md」不存在，先帮我建一个空模板。",
    steps:["在工作区里放一个「待办.md」，随手写下要做的事","新建会话，粘贴这段话发送","在左侧「自动化任务」里能看到、修改或关掉它"]},
-  {id:"photo-sort", cat:"file", mode:"标准模式", tested:true, video:"https://www.bilibili.com/video/BV1sixw62EYa",
+  {id:"photo-sort", ba:{b:["IMG_4821.jpg", "IMG_4822.jpg", "微信图片_2024.jpg"],a:["2024-05/", "2024-06/", "日期不明/"]}, cat:"file", mode:"标准模式", tested:true, video:"https://www.bilibili.com/video/BV1sixw62EYa",
    name:"照片按年月自动归档",
    sum:"一个文件夹里几千张照片，按拍摄日期分到「2024-05」这样的子文件夹里，读不到日期的单独放。",
    can:["读照片里自带的拍摄日期（EXIF），文件名里的日期不作数","读不到日期的放进「日期不明」，不瞎猜","先给你看移动计划和每个文件夹的张数，你点头才动手","只移动不删除，还会留一份撤销清单"],
    prompt:"帮我整理工作区里的「照片」文件夹：按每张照片的拍摄日期，移动到「年-月」命名的子文件夹里，比如「2024-05」。拍摄日期从照片自带的信息（EXIF）里读，读不到的单独放进「日期不明」文件夹。动手之前先列出移动计划和每个文件夹会有多少张，等我确认再执行。不要删除任何文件，遇到重名就在文件名后面加序号。",
    steps:["第一次用，先把照片复制一份，放进工作区的「照片」文件夹","粘贴这段话发送，等它研究完弹出确认窗口","核对计划：各文件夹张数加起来等于总数","没问题就选「确认执行」，48 张实测 4 分钟左右"]},
-  {id:"batch-rename", cat:"file", mode:"标准模式", tested:true, video:"https://www.bilibili.com/video/BV1ozxN63EHz",
+  {id:"batch-rename", ba:{b:["新建 Word 文档 (2).docx", "最终版-改-再改.pdf"],a:["2024-05-08_报价单.docx", "2024-05-12_合同.pdf"]}, cat:"file", mode:"标准模式", tested:true, video:"https://www.bilibili.com/video/BV1ozxN63EHz",
    name:"批量重命名一堆文件",
    sum:"把「新建 Word 文档 (2)」「最终版-改-再改」这种乱名字，按文件内容统一改成「日期_内容」。",
    can:["打开每个文件读内容（Word、PDF、表格、图片都行），从里面找日期","先出一张「旧名字 → 新名字」对照表，你确认才改","只改名不删除，并保存一份改名记录.csv，随时能改回去"],
    prompt:"帮我把「待改名」文件夹里的文件批量重命名，格式是：日期_内容简述，比如「2024-05-08_晨光咖啡报价单.docx」。日期用文件内容里写的日期，内容里没有日期的用修改日期，并在对照表里标出来。内容简述不超过 10 个字。先给我一张「旧名字 → 新名字」对照表，等我确认再改。不要删除任何文件，改完把对照表保存成「改名记录.csv」。",
    steps:["第一次用，先把要改名的文件复制一份，放进工作区的「待改名」文件夹","粘贴这段话发送，等它给出对照表","没看到完整对照表就先别确认，让它把表发出来","核对没问题再回复「确认，按这张表执行」"]},
-  {id:"excel-clean", cat:"office", mode:"标准模式",
+  {id:"excel-clean", ba:{b:["合并单元格", "5/1、2024.5.1", "空行 ×37"],a:["一行一条", "2024-05-01", "0 空行"]}, cat:"office", mode:"标准模式",
    name:"乱表格一键整理干净",
    sum:"合并单元格、空行、日期格式五花八门的 Excel，整理成一张规范的新表。",
    can:["去掉空行、重复行和多余空格","统一日期、金额格式","原表不动，另存一份新表"],
    prompt:"帮我整理工作区里的「原始数据.xlsx」：拆开合并单元格、删掉空行和完全重复的行、去掉多余空格，日期统一成 2024-05-01 格式，金额统一保留两位小数。不要改原文件，另存为「整理后.xlsx」，最后用几句话告诉我改了哪些地方、有没有看不懂需要我确认的数据。",
    steps:["把表格放进工作区，改名为「原始数据.xlsx」","粘贴发送，等它生成「整理后.xlsx」","看它最后列出的「需要你确认」的地方"]},
-  {id:"weekly-report", cat:"office", mode:"标准模式",
+  {id:"weekly-report", ba:{b:["周一 跟老王对了下", "周三 报价改了三版"],a:["本周完成 3 项", "下周计划 2 项"]}, cat:"office", mode:"标准模式",
    name:"零碎记录变周报",
    sum:"把这周随手记的流水账，整理成一份领导爱看的周报。",
    can:["自动归类成「完成 / 进行中 / 问题 / 下周计划」","口语改成书面语，不夸大","可以指定字数和语气"],
    prompt:"下面是我这周随手记的工作记录，帮我整理成周报：分成「本周完成」「进行中」「遇到的问题」「下周计划」四部分，每条一句话，用平实的书面语，不要夸大，不要编造我没写的内容，总字数 400 字以内。\n\n（把你的记录粘贴在这里）",
    steps:["复制这段话，把最后一行换成你自己的记录","发送，觉得太长就说「再精简一点」"]},
-  {id:"bili-copy", cat:"create", mode:"标准模式",
+  {id:"bili-copy", ba:{b:["一份口播稿"],a:["3 个标题", "时间轴简介", "10 个标签"]}, cat:"create", mode:"标准模式",
    name:"视频稿生成B站标题和简介",
    sum:"给它口播稿，它出 3 个标题、带时间轴的简介和 10 个标签。",
    can:["3 个不同风格的标题，不当标题党","按口播稿生成时间轴简介","10 个以内的标签和分区建议"],
    prompt:"下面是我视频的口播稿，帮我写B站发布文案：1）3 个标题，各 40 字以内，风格分别是「直接说结果」「提问」「教程」，不要夸张标题党；2）一段 100 字以内的简介；3）按稿子内容估算时间轴，每段一行；4）10 个以内的标签；5）建议的分区。\n\n（把口播稿粘贴在这里）",
    steps:["复制这段话，把最后一行换成你的口播稿","发送，挑一个标题，觉得不顺就让它改"]},
-  {id:"study-notes", cat:"learn", mode:"标准模式",
+  {id:"study-notes", ba:{b:["看不懂的长 PDF"],a:["一页大白话笔记", "5 道小测验"]}, cat:"learn", mode:"标准模式",
    name:"长文章变小白笔记 + 小测验",
    sum:"一篇看不懂的长文或 PDF，变成一页大白话笔记，再出 5 道题考考你。",
    can:["用大白话讲清核心意思","专业词旁边加一句解释","最后 5 道选择题，附答案和解析"],
    prompt:"帮我读工作区里的「资料.pdf」，写一页给完全不懂的人看的笔记：先用三句话说它讲了什么，再分点讲清楚关键内容，专业词第一次出现时在括号里用一句大白话解释。最后出 5 道选择题考我，答案和解析放在最后面。只根据资料内容写，资料里没有的不要补充。",
    steps:["把文章或 PDF 放进工作区，改名为「资料.pdf」","粘贴发送，先自己做题再看答案"]},
-  {id:"downloads-sort", cat:"file", mode:"标准模式",
+  {id:"downloads-sort", ba:{b:["下载/ 里 600 个文件"],a:["文档/ 表格/ 图片/", "很久没用/"]}, cat:"file", mode:"标准模式",
    name:"「下载」文件夹一键分类",
    sum:"下载了几百个文件找不到？按类型分进「文档、表格、图片、安装包、压缩包」，再把半年没碰的单独挑出来。",
    can:["按扩展名分成 6 类子文件夹，认不出的放「其他」","超过 180 天没修改的另放「很久没用」，方便你决定删不删","先给你看计划和每类数量，确认才动手","只移动不删除，留一份移动记录随时能还原"],
    prompt:"帮我整理工作区里的「下载」文件夹：按文件类型移动到子文件夹里——文档（Word、PDF、TXT）、表格（Excel、CSV）、图片、视频音频、安装包（exe、msi、dmg）、压缩包，认不出的放「其他」。超过 180 天没修改过的文件，不管什么类型，单独放进「很久没用」。动手之前先列出计划和每个文件夹会有几个文件，等我确认再执行。不要删除任何文件，遇到重名在文件名后面加序号，最后把所有移动记录保存成「移动记录.csv」。",
    steps:["第一次用，先把下载文件夹复制一份，放进工作区并命名为「下载」","粘贴这段话发送，等它给出计划","核对各类数量加起来等于总数，再回复「确认执行」","「很久没用」里的东西你自己看着删，AI 不替你删"]},
-  {id:"find-dupes", cat:"file", mode:"标准模式",
+  {id:"find-dupes", ba:{b:["同一张照片存了 4 份"],a:["重复文件清单", "能腾出多少空间"]}, cat:"file", mode:"标准模式",
    name:"找出重复的文件，腾出硬盘空间",
    sum:"照片、视频存了好几份？按文件内容找出真正一模一样的，列成清单给你挑，不自动删。",
    can:["按文件内容比对，名字不同但内容一样的也能找到","按占用空间从大到小排，先处理最占地方的","每组重复文件建议保留哪一个，并说明理由","只出清单，删不删你说了算"],
    prompt:"帮我检查工作区里的「待检查」文件夹，找出内容完全相同的重复文件（按文件内容的哈希值比对，不看文件名）。把结果做成「重复文件清单.csv」：每组一行，写清楚文件路径、大小、修改时间，以及建议保留哪一个（优先保留文件名更规范、修改时间更早的）。按每组能腾出的空间从大到小排序，最后告诉我一共能腾出多少空间。只生成清单，不要删除或移动任何文件。",
    steps:["把要检查的文件夹复制或放进工作区，命名为「待检查」","粘贴这段话发送，文件多的话要等一会儿","打开「重复文件清单.csv」，从最大的那组开始看","确认没问题后再自己删，或者跟它说「把清单里建议删除的移到一个回收文件夹」"]},
-  {id:"meeting-notes", cat:"office", mode:"标准模式",
+  {id:"meeting-notes", ba:{b:["嗯…那个…就是说…"],a:["3 条结论", "待办：谁、哪天交"]}, cat:"office", mode:"标准模式",
    name:"会议录音文字稿变会议纪要",
    sum:"手机转写出来的一大段口语，整理成「结论、待办、谁负责、什么时候交」。",
    can:["去掉口头禅和重复，保留原意","单独列出待办事项、负责人和截止时间","没说清楚的地方标「待确认」，不替你瞎补"],
    prompt:"下面是一段会议录音转出来的文字，帮我整理成会议纪要：1）会议主题和参会人（文字里能看出来的）；2）讨论了哪几件事，每件用两三句话说清楚；3）最后的结论；4）待办事项表格：做什么、谁负责、什么时候交。文字里没提到负责人或时间的，写「待确认」，不要自己编。用平实的书面语，去掉口头禅。\n\n（把转写文字粘贴在这里）",
    steps:["用手机自带的录音转文字，或者剪映、飞书妙记把录音转成文字","复制这段话，把最后一行换成转写文字","发送，重点核对待办表格里的人名和时间"]},
-  {id:"receipts-table", cat:"office", mode:"标准模式",
+  {id:"receipts-table", ba:{b:["发票_01.pdf … 发票_36.pdf"],a:["报销汇总.xlsx", "合计自动算好"]}, cat:"office", mode:"标准模式",
    name:"一堆发票 PDF 汇总成报销表",
    sum:"几十张电子发票，自动读出日期、开票方、金额，做成一张能直接交的报销汇总表。",
    can:["逐张读取电子发票 PDF 里的关键信息","汇总成 Excel，最后一行自动合计","读不清楚的标黄提醒你手动核对"],
    prompt:"帮我读取工作区「发票」文件夹里的所有电子发票 PDF，做成一张「报销汇总.xlsx」：每张发票一行，列出文件名、开票日期、开票方名称、发票号码、金额（不含税）、税额、价税合计，按日期排序，最后一行算出合计。读不出来或者拿不准的格子标黄，并在最后告诉我是哪几张。只读取，不要修改或移动发票文件。",
    steps:["把电子发票 PDF 都放进工作区的「发票」文件夹","粘贴这段话发送","打开「报销汇总.xlsx」，标黄的格子对着原发票核一遍","扫描件或手机照片读得没那么准，务必核对金额"]},
-  {id:"xhs-post", cat:"create", mode:"标准模式",
+  {id:"xhs-post", ba:{b:["随口说的一大段"],a:["5 个标题", "6 张图怎么配"]}, cat:"create", mode:"标准模式",
    name:"一段话写成小红书图文笔记",
    sum:"把你想分享的经验随口说一段，它整理成标题、正文分段和配图建议。",
    can:["5 个标题备选，口语、不夸张","正文分段短句，适合手机阅读","建议每张图放什么内容、图上写什么字"],
    prompt:"下面是我想分享的内容，帮我写成一篇小红书图文笔记：1）5 个标题备选，每个 20 字以内，口语化，不要标题党和夸张词；2）正文 300 字左右，分成短段落，每段开头可以加一个合适的表情符号；3）建议做 4～6 张配图，说明每张图放什么、图上写什么大字；4）5 个话题标签。只用我提供的信息，不要编造数据和经历。\n\n（把你想分享的内容粘贴在这里）",
    steps:["复制这段话，把最后一行换成你想分享的内容，越具体越好","发送，挑一个标题","觉得太像 AI 写的，就说「再口语一点，像跟朋友聊天」"]},
-  {id:"vocab-cards", cat:"learn", mode:"标准模式",
+  {id:"vocab-cards", ba:{b:["一串英文单词"],a:["正反面单词卡", "A4 直接打印"]}, cat:"learn", mode:"标准模式",
    name:"生词表变成可打印的背单词卡",
    sum:"给它一串英文单词，做成正反面的单词卡网页，打开就能打印，还能在电脑上翻着背。",
    can:["每个词配音标、中文意思和一个简单例句","正面单词、反面释义，点一下翻面","按 A4 纸排版，直接打印裁开就能用"],
    prompt:"帮我把下面这些英文单词做成背单词卡，保存成工作区里的「单词卡.html」：每张卡正面是单词和音标，反面是中文意思和一个简单的英文例句（附中文翻译）。网页里点一下卡片就翻面，有「打乱顺序」按钮。再加一个打印模式，按 A4 纸每页排 8 张，正反面分开打印。例句要简单、贴近日常生活。\n\n（把单词粘贴在这里，一行一个）",
    steps:["复制这段话，把最后一行换成你的单词","发送，等它生成「单词卡.html」","双击用浏览器打开就能翻着背；想打印就点打印模式","音标和例句请自己扫一眼，发现不对就让它改"]}
 ];
+
+/* 插件推荐：社区作者做的第三方插件，未名没逐个实测，只挑适合新手的。 */
+const PLUGINS = [
+  {id:"p-agent-skills", ba:{b:["技能包散在各个文件夹"],a:["设置里一页看全", "一键开关"]}, ico:"🧰", name:"技能包管理面板", repo:"minivv/dsh-agent-skills",
+   sum:"在 DSH 设置里多一个「Agent Skills」页面，装了哪些技能包、开没开，一眼看清。",
+   can:["集中查看和管理已经装好的技能包","配合本站的技能包一起用，装完不用到处找文件夹","作者说插件市场里搜「Agent Skills」就能装"],
+   cmd:"dsh plugin --profile web add dsh-agent-skills",
+   after:"装好后打开「设置 → Agent Skills」，点「开启接管 DSH 技能」，再点「重启 DSH」。"},
+  {id:"p-genui", ba:{b:["一大段文字回答"],a:["图表、表格", "流程图、小测验"]}, ico:"📊", name:"回答变成图表和卡片", repo:"omdsh-dev/dsh-genui",
+   sum:"让 DSH 的回答不只是一大段字：能画图表、表格、时间线、流程图，还能出小测验。",
+   can:["30 多种界面组件：卡片、表格、图表、时间线、流程图等","适合看数据、做对比、做学习小测验","作者给的验证方法：新会话里让它「用 dsh-ui 画一个数据看板」"],
+   cmd:"dsh plugin --profile web add git+https://github.com/omdsh-dev/dsh-genui.git",
+   after:"装好后重启 DSH，浏览器强制刷新一下（Ctrl+F5）。"},
+  {id:"p-oh-story", ba:{b:["空白的对话框"],a:["小说工作台", "短剧剧本 + 分镜"]}, ico:"🎬", name:"小说和短剧创作工作台", repo:"zenstory-ai/oh-story-dsh",
+   sum:"给 DSH 加上写小说、写短剧剧本的工作台，自带一套创作技能和角色分工。",
+   can:["长篇、短篇、选题、拆文、审稿、去 AI 味","短剧工作台：剧本、分镜、关键帧","要花钱的生图、配音，都会先给你预览、等你确认再调用"],
+   cmd:"npx -y --package pnpm@11.7.0 --package @deepseek-ai/dsh@0.2.1-rc.2 dsh plugin --profile web add @oh-story/dsh@0.1.18",
+   after:"需要 Node.js 24 以上。作者的命令里写死了 DSH 版本号，和你装的版本不一致时，先看作者主页的最新说明。"},
+  {id:"p-agent-teams", ba:{b:["一个 AI 慢慢做"],a:["几个 AI 分头做", "组长汇总给你"]}, ico:"👥", name:"多个 AI 组队干活", repo:"NanmiCoder/dsh-agent-teams",
+   sum:"大任务拆给好几个 AI 同时做：一个当组长分工，组员之间直接沟通，最后汇总给你。",
+   can:["适合能拆开的大活，比如同时调研好几个产品","右上角有团队面板，能看到谁在做什么","说一句「用 AgentTeams 调研一下……」就会启动"],
+   cmd:"npx -p @deepseek-ai/dsh dsh plugin --profile web add github:NanmiCoder/dsh-agent-teams",
+   after:"装好后重启 DSH 并刷新页面。注意：几个 AI 同时跑，DeepSeek 余额会花得更快，先拿小任务试。",
+   warn:true}
+];
+
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const catOf = id => CATS.find(c => c.id === id) || {name:""};
+const TICK = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l4.5 4.5L17 4"/></svg>';
 
+/* 稿纸标题：一个字一个格，两个半角字母共用一格 */
+(function(){
+  const h = $("#gz"), t = h.textContent; let out = "", i = 0;
+  while (i < t.length){
+    let ch = t[i];
+    if (/[A-Za-z0-9]/.test(ch) && /[A-Za-z0-9]/.test(t[i+1] || "")) { ch += t[i+1]; i++; }
+    const punct = /[，。、！？：；]/.test(ch);
+    out += `<span aria-hidden="true"${punct ? ' class="p"' : ""}>${esc(ch)}</span>`;
+    if (ch === "，" && window.innerWidth < 640) out += '<span class="br" aria-hidden="true"></span>';
+    i++;
+  }
+  h.innerHTML = out;
+})();
+
+/* 首屏：挑一件事 */
+const PICKS = ["photo-sort","batch-rename","excel-clean","weekly-report","meeting-notes","downloads-sort","xhs-post","dsh-desktop-pet"]
+  .map(id => SKILLS.find(s => s.id === id)).filter(Boolean);
+let picked = PICKS[0];
+const SHORT = {"photo-sort":"整理照片","batch-rename":"文件改名","excel-clean":"整理表格","weekly-report":"写周报","meeting-notes":"会议纪要","downloads-sort":"清理下载","xhs-post":"写小红书","dsh-desktop-pet":"做个桌宠"};
+function renderPick(){
+  $("#chips").innerHTML = PICKS.map(s => `<button type="button" data-pick="${s.id}" aria-pressed="${s === picked}">${esc(SHORT[s.id] || s.name)}</button>`).join("");
+  $("#pickText").textContent = picked.prompt;
+  $("#pickName").textContent = picked.name;
+  $("#pickSum").textContent = picked.sum;
+}
+if (PICKS.length){ renderPick(); } else { $(".pick").hidden = true; }
+$("#chips").addEventListener("click", e => { const b = e.target.closest("[data-pick]"); if (!b) return; picked = SKILLS.find(s => s.id === b.dataset.pick); renderPick(); });
+$("#pickMore").addEventListener("click", () => openSkill(picked.id));
+
+/* 技能包：前后对比卡 */
+function card(o){
+  const li = xs => xs.map(x => `<li>${esc(x)}</li>`).join("");
+  return `<button class="card" type="button" ${o.attr}="${o.id}">
+    <span class="ct"><span class="k">${esc(o.k)}</span>${o.mark || ""}</span>
+    <h3>${esc(o.name)}</h3>
+    <span class="lab" aria-hidden="true"><span>${o.lb}</span><span>${o.la}</span></span>
+    <span class="ba"><ul class="b" aria-label="${o.lb}">${li(o.b)}</ul><span class="arr" aria-hidden="true">➜</span><ul class="a" aria-label="${o.la}">${li(o.a)}</ul></span>
+    <span class="f"><span>${o.foot}</span><b>${o.go}</b></span>
+  </button>`;
+}
 let cat = "all", kw = "";
-const catOf = id => CATS.find(c => c.id === id);
 function renderCats(){
   const n = id => SKILLS.filter(s => id === "all" || s.cat === id).length;
   $("#cats").innerHTML = [{id:"all", name:"全部"}, ...CATS].map(c =>
@@ -549,123 +558,71 @@ function renderGrid(){
   const k = kw.trim().toLowerCase();
   const list = SKILLS.filter(s => (cat === "all" || s.cat === cat) && (!k || (s.name + s.sum + s.prompt + catOf(s.cat).name).toLowerCase().includes(k)));
   list.sort((a, b) => (b.tested ? 1 : 0) - (a.tested ? 1 : 0));
-  const cards = list.map(s => { const c = catOf(s.cat); return `
-    <button class="card" type="button" data-id="${s.id}">
-      <span class="ctop"><span class="ico c-${c.id}" aria-hidden="true">${c.ico}</span><span class="cat">${esc(c.name)}</span>
-        <span class="badges">${s.tested ? '<span class="badge b-ok">已实测</span>' : ""}${s.video ? '<span class="badge b-vid">有视频</span>' : ""}</span></span>
-      <h3>${esc(s.name)}</h3><p>${esc(s.sum)}</p>
-      <span class="foot"><span>DSH ${esc(s.mode)}</span><b>看用法</b></span>
-    </button>`; }).join("");
-  const ask = `<a class="card ask" href="${BILI}" target="_blank" rel="noopener"><h3>你想要什么？</h3><p>想让 AI 帮你干什么活，去B站评论区说，呼声高的先做。</p><span class="foot"><span>征集中</span><b>去B站留言</b></span></a>`;
-  $("#grid").innerHTML = list.length ? cards + (k ? "" : ask) : `<p class="empty">没找到「${esc(kw)}」相关的。换个词试试，或者<a href="${BILI}" target="_blank" rel="noopener">去B站告诉我你想要什么</a>。</p>`;
+  const rows = list.map(s => `<li>${card({id:s.id, attr:"data-id", k:catOf(s.cat).name, name:s.name,
+      mark: s.tested ? `<span class="tick">${TICK}实测</span>` : (s.video ? '<span class="vid-t">有视频</span>' : ""),
+      b: s.ba ? s.ba.b : ["一段话"], a: s.ba ? s.ba.a : s.can.slice(0, 2), lb:"交给它之前", la:"之后",
+      foot: s.video ? '有B站视频' : "复制一段话就行", go:"看怎么做"})}</li>`).join("");
+  const ask = `<li class="ask">没找到想要的？<a href="${BILI}" target="_blank" rel="noopener">去B站评论区说一声</a>，呼声高的先做。</li>`;
+  $("#grid").innerHTML = list.length ? rows + (k ? "" : ask) : `<li class="empty">没找到「${esc(kw)}」相关的。换个词试试，或者<a href="${BILI}" target="_blank" rel="noopener">去B站告诉未名你想要什么</a>。</li>`;
 }
 renderCats(); renderGrid();
 $("#cats").addEventListener("click", e => { const b = e.target.closest("[data-cat]"); if (!b) return; cat = b.dataset.cat; renderCats(); renderGrid(); });
 $("#q").addEventListener("input", e => { kw = e.target.value; renderGrid(); });
 
+function showDlg(html){
+  $("#dlgInner").innerHTML = html;
+  const d = $("#dlg"); d.showModal ? d.showModal() : d.setAttribute("open", "");
+  d.scrollTop = 0;
+}
 function openSkill(id){
   const s = SKILLS.find(x => x.id === id); if (!s) return;
-  $("#dlgInner").innerHTML = `
-    <div class="dlg-head"><div><h3 id="dlgTitle">${esc(s.name)}</h3><p>${esc(s.sum)}</p></div>
+  showDlg(`
+    <div class="dr-head"><div><span class="k">${esc(catOf(s.cat).name)} · DSH ${esc(s.mode)}</span><h3 id="dlgTitle">${esc(s.name)}</h3><p>${esc(s.sum)}</p></div>
       <button class="x" type="button" aria-label="关闭" data-close>×</button></div>
-    ${s.video ? `<a class="vid" href="${s.video}" target="_blank" rel="noopener"><span class="play" aria-hidden="true"></span><span><b>先看视频教程</b><small>B站视频，一步步跟着做</small></span></a>` : ""}
-    ${s.tested ? "" : `<p class="note">这条是常用写法，还没录视频实测。第一次用时，让它先给你看计划再动手，会更稳。</p>`}
+    ${s.video ? `<a class="watch" href="${s.video}" target="_blank" rel="noopener"><span class="pl" aria-hidden="true"></span><span><b>先看视频教程</b><small>B站视频，一步步跟着做</small></span></a>` : ""}
+    ${s.tested ? "" : `<p class="warn">这条是常用写法，还没录视频实测。第一次用时，让它先给你看计划再动手，会更稳。</p>`}
     <h4>复制这段话</h4>
-    <div class="copybox"><span id="pmt">${esc(s.prompt)}</span><button class="copy" type="button" data-copy="pmt">复制</button></div>
+    <pre class="note"><span id="pmt">${esc(s.prompt)}</span><button class="btn solid copy" type="button" data-copy="pmt">复制</button></pre>
     <h4>怎么用</h4><ol>${s.steps.map(i => `<li>${esc(i)}</li>`).join("")}</ol>
-    <h4>它会做什么</h4><ul>${s.can.map(i => `<li>${esc(i)}</li>`).join("")}</ul>`;
-  const d = $("#dlg"); d.showModal ? d.showModal() : d.setAttribute("open", "");
+    <h4>它会做什么</h4><ul>${s.can.map(i => `<li>${esc(i)}</li>`).join("")}</ul>`);
 }
 $("#grid").addEventListener("click", e => { const t = e.target.closest(".card[data-id]"); if (t) openSkill(t.dataset.id); });
-/* 插件推荐：社区作者做的第三方插件，未名没逐个实测，只挑适合新手的。 */
-const PLUGINS = [
-  {id:"p-agent-skills", ico:"🧰", name:"技能包管理面板", repo:"minivv/dsh-agent-skills",
-   sum:"在 DSH 设置里多一个「Agent Skills」页面，装了哪些技能包、开没开，一眼看清。",
-   can:["集中查看和管理已经装好的技能包","配合本站的技能包一起用，装完不用到处找文件夹","作者说插件市场里搜「Agent Skills」就能装"],
-   cmd:"dsh plugin --profile web add dsh-agent-skills",
-   after:"装好后打开「设置 → Agent Skills」，点「开启接管 DSH 技能」，再点「重启 DSH」。"},
-  {id:"p-genui", ico:"📊", name:"回答变成图表和卡片", repo:"omdsh-dev/dsh-genui",
-   sum:"让 DSH 的回答不只是一大段字：能画图表、表格、时间线、流程图，还能出小测验。",
-   can:["30 多种界面组件：卡片、表格、图表、时间线、流程图等","适合看数据、做对比、做学习小测验","作者给的验证方法：新会话里让它「用 dsh-ui 画一个数据看板」"],
-   cmd:"dsh plugin --profile web add git+https://github.com/omdsh-dev/dsh-genui.git",
-   after:"装好后重启 DSH，浏览器强制刷新一下（Ctrl+F5）。"},
-  {id:"p-oh-story", ico:"🎬", name:"小说和短剧创作工作台", repo:"zenstory-ai/oh-story-dsh",
-   sum:"给 DSH 加上写小说、写短剧剧本的工作台，自带一套创作技能和角色分工。",
-   can:["长篇、短篇、选题、拆文、审稿、去 AI 味","短剧工作台：剧本、分镜、关键帧","要花钱的生图、配音，都会先给你预览、等你确认再调用"],
-   cmd:"npx -y --package pnpm@11.7.0 --package @deepseek-ai/dsh@0.2.1-rc.2 dsh plugin --profile web add @oh-story/dsh@0.1.18",
-   after:"需要 Node.js 24 以上。作者的命令里写死了 DSH 版本号，和你装的版本不一致时，先看作者主页的最新说明。"},
-  {id:"p-agent-teams", ico:"👥", name:"多个 AI 组队干活", repo:"NanmiCoder/dsh-agent-teams",
-   sum:"大任务拆给好几个 AI 同时做：一个当组长分工，组员之间直接沟通，最后汇总给你。",
-   can:["适合能拆开的大活，比如同时调研好几个产品","右上角有团队面板，能看到谁在做什么","说一句「用 AgentTeams 调研一下……」就会启动"],
-   cmd:"npx -p @deepseek-ai/dsh dsh plugin --profile web add github:NanmiCoder/dsh-agent-teams",
-   after:"装好后重启 DSH 并刷新页面。注意：几个 AI 同时跑，DeepSeek 余额会花得更快，先拿小任务试。",
-   warn:true}
-];
+
+/* 插件 */
 function renderPlugins(){
-  $("#pgrid").innerHTML = PLUGINS.map(p => `
-    <button class="card" type="button" data-pid="${p.id}">
-      <span class="ctop"><span class="ico c-plug" aria-hidden="true">${p.ico}</span><span class="cat">社区插件</span>
-        <span class="badges">${p.warn ? '<span class="badge b-cost">费余额</span>' : ""}</span></span>
-      <h3>${esc(p.name)}</h3><p>${esc(p.sum)}</p>
-      <span class="foot"><span>${esc(p.repo.split("/")[0])} 制作</span><b>怎么装</b></span>
-    </button>`).join("");
+  $("#pgrid").innerHTML = PLUGINS.map(p => `<li>${card({id:p.id, attr:"data-pid", k:"社区插件 · " + p.repo.split("/")[0] + " 制作", name:p.name,
+      mark: p.warn ? '<span class="cost">费余额</span>' : "",
+      b: p.ba ? p.ba.b : ["原版 DSH"], a: p.ba ? p.ba.a : p.can.slice(0, 2), lb:"装之前", la:"装上之后",
+      foot:"复制一段话让 DSH 自己装", go:"怎么装"})}</li>`).join("");
 }
 function openPlugin(id){
   const p = PLUGINS.find(x => x.id === id); if (!p) return;
-  const ask = `帮我安装 DSH 插件「${p.name}」，作者给的安装命令是：\n${p.cmd}\n动手前先告诉你要执行什么、会装到哪里，等我确认。如果提示找不到 pnpm，先运行 corepack enable 再试。装完告诉我怎么确认它装好了、以后怎么卸载。`;
-  $("#dlgInner").innerHTML = `
-    <div class="dlg-head"><div><h3 id="dlgTitle">${esc(p.name)}</h3><p>${esc(p.sum)}</p></div>
+  const ask = `帮我安装 DSH 插件「${p.name}」，作者给的安装命令是：\n${p.cmd}\n动手前先告诉我要执行什么、会装到哪里，等我确认。如果提示找不到 pnpm，先运行 corepack enable 再试。装完告诉我怎么确认它装好了、以后怎么卸载。`;
+  showDlg(`
+    <div class="dr-head"><div><span class="k">社区插件 · ${esc(p.repo)}</span><h3 id="dlgTitle">${esc(p.name)}</h3><p>${esc(p.sum)}</p></div>
       <button class="x" type="button" aria-label="关闭" data-close>×</button></div>
-    <p class="note">这是社区作者做的第三方插件，不是未名做的，也没有逐个实测。装之前可以先去<a href="https://github.com/${p.repo}" target="_blank" rel="noopener">作者的 GitHub 主页</a>看看说明。</p>
+    <p class="warn">这是社区作者做的第三方插件，不是未名做的，也没有逐个实测。装之前可以先去<a href="https://github.com/${p.repo}" target="_blank" rel="noopener">作者的 GitHub 主页</a>看看说明。</p>
     <h4>它能做什么</h4><ul>${p.can.map(i => `<li>${esc(i)}</li>`).join("")}</ul>
-    <h4>最省事的装法：让 DSH 自己装</h4>
-    <div class="copybox"><span id="pask">${esc(ask)}</span><button class="copy" type="button" data-copy="pask">复制</button></div>
+    <h4>最省事的装法：复制这段话给 DSH</h4>
+    <pre class="note"><span id="pask">${esc(ask)}</span><button class="btn solid copy" type="button" data-copy="pask">复制</button></pre>
     <h4>会用命令行的话</h4>
-    <div class="copybox"><span id="pcmd">${esc(p.cmd)}</span><button class="copy" type="button" data-copy="pcmd">复制</button></div>
-    <h4>装好之后</h4><p class="dlg-p">${esc(p.after)}</p>`;
-  const d = $("#dlg"); d.showModal ? d.showModal() : d.setAttribute("open", "");
+    <div class="cmd"><span id="pcmd">${esc(p.cmd)}</span><button class="btn solid copy" type="button" data-copy="pcmd">复制</button></div>
+    <h4>装好之后</h4><p class="plain">${esc(p.after)}</p>`);
 }
 renderPlugins();
 $("#pgrid").addEventListener("click", e => { const t = e.target.closest(".card[data-pid]"); if (t) openPlugin(t.dataset.pid); });
+
 $("#dlg").addEventListener("click", e => { if (e.target.closest("[data-close]") || e.target === e.currentTarget) e.currentTarget.close(); });
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-copy]"); if (!b) return;
-  const text = document.getElementById(b.dataset.copy).textContent;
-  const done = () => { b.textContent = "已复制"; b.classList.add("ok"); setTimeout(() => { b.textContent = "复制"; b.classList.remove("ok"); }, 1800); };
+  const text = document.getElementById(b.dataset.copy).textContent, label = b.textContent;
+  const done = () => { b.textContent = "已复制"; b.classList.add("ok"); setTimeout(() => { b.textContent = label; b.classList.remove("ok"); }, 1800); };
   if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => fallback(text, done)); else fallback(text, done);
 });
 function fallback(text, done){
   const t = document.createElement("textarea"); t.value = text; t.style.position = "fixed"; t.style.opacity = "0";
   document.body.appendChild(t); t.select(); try { document.execCommand("copy"); done(); } catch(e) {} t.remove();
 }
-
-/* 首屏演示 */
-const PROMPT = SKILLS[0].prompt;
-const LINES = ["去喝口水吧，你值得。","今天也辛苦啦。","慢慢来，比较快。","你已经做得很好了。","起来伸个懒腰吧。","先做完一小步就好。"];
-let timers = [], li = 0;
-function later(fn, ms){ timers.push(setTimeout(fn, ms)); }
-function play(){
-  timers.forEach(clearTimeout); timers = [];
-  const out = $("#typedText"), box = $("#typed"), items = [...document.querySelectorAll("#log li")], sw = $("#swimmer");
-  box.classList.remove("done"); items.forEach(i => i.classList.remove("on")); sw.classList.remove("on"); out.textContent = "";
-  if (reduce) { out.textContent = PROMPT; box.classList.add("done"); items.forEach(i => i.classList.add("on")); sw.classList.add("on"); return; }
-  let i = 0;
-  (function type(){
-    i += 2; out.textContent = PROMPT.slice(0, i);
-    if (i < PROMPT.length) later(type, 34);
-    else {
-      box.classList.add("done");
-      items.forEach((el, k) => later(() => el.classList.add("on"), 500 + k * 750));
-      later(() => sw.classList.add("on"), 500 + items.length * 750);
-    }
-  })();
-}
-$("#whale").addEventListener("click", () => {
-  const say = $("#say"); say.textContent = LINES[li++ % LINES.length]; say.classList.add("on");
-  clearTimeout(say._t); say._t = setTimeout(() => say.classList.remove("on"), 2400);
-});
-$("#replay").addEventListener("click", play);
-play();
 </script>
 </body>
 </html>
