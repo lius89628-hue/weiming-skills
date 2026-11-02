@@ -1,9 +1,9 @@
 {
   "name": "@local/desktop-pet-xiaojingniang",
-  "version": "2.0.0",
+  "version": "3.0.2",
   "private": true,
   "type": "module",
-  "description": "小鲸娘 — a draggable desktop pet for the DSH Web UI whose expression follows the harness state (thinking, task completed, rejected approval, long task, night), with 5 colour × 5 outfit combinations backed by transparent WebM animations.",
+  "description": "小鲸娘 — a draggable desktop pet for the DSH Web UI with a local brain: double-click her to chat, answers stream into the bubble above her head from the local Ollama model (same-origin Host proxy, 127.0.0.1 only, CPU, think off), 10 rounds of in-memory memory, and her expression follows the DSH state (thinking, task completed, rejected approval, long task, night) plus chat moods (smug while waiting, cheer when answered, teary when the user is sad or mean). 5 colour × 5 outfit combinations backed by transparent WebM animations.",
   "exports": {
     ".": "./index.js",
     "./client": "./client.js",

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Xiaojingniang Desktop Pet 2.0",
-    "description": "The original character Xiaojingniang lives on your screen: a daily smile, a smug squint while you are waiting for an answer, a celebration when a task finishes, teary eyes when you deny an approval, a broke-and-crying face when one task runs too long, and sleepiness between midnight and 6am. Drag her anywhere; right-click to change colours, change outfit, hide, or quit — your choice is remembered."
+    "title": "Xiaojingniang Desktop Pet 3.0",
+    "description": "The original character Xiaojingniang now has a local brain: double-click her for a small input box and chat with the local Ollama model (127.0.0.1 only, CPU-only, thinking off); answers stream into the speech bubble above her head. She is a cute whale girl who speaks in very short, occasionally teasing lines, never more than 40 characters, and remembers the last 10 rounds in memory only (a reload clears them). She squints smugly while waiting, celebrates for 2 seconds after answering, and turns teary when you are sad or mean; if Ollama is off the bubble simply says \"My brain is still asleep~\" and nothing errors. Everything from 2.0 stays: single-click phrases, triple-tap ouch, dragging, colour/outfit changes and DSH-state expressions."
   }
 }

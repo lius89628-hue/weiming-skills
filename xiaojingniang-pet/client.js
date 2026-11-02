@@ -1,9 +1,11 @@
 /**
- * 小鲸娘桌面宠物 2.0 — Client half of the `@local/desktop-pet-xiaojingniang` bundle.
+ * 小鲸娘桌面宠物 3.0 — Client half of the `@local/desktop-pet-xiaojingniang` bundle.
  *
  * Registers two things into the Web UI:
  *   1. one entry in the frame-wide `shell.overlay` slot: the draggable pet,
- *      showing the artwork that matches the current DSH state;
+ *      showing the artwork that matches the current DSH state, plus the 3.0
+ *      local-brain chat surface (double-click her to talk, answers stream into
+ *      the speech bubble above her head);
  *   2. one invisible bridge entry in the Session-scoped
  *      `conversation.input.dock` slot, which folds the Session log
  *      (`turn/start`, `turn/end`, `approval/decided`) into a tiny module-level
@@ -12,6 +14,16 @@
  * Artwork comes from the package's own `assets/` directory over the Host half's
  * `/dsh-pet-assets` route: a transparent WebM animation per expression, with the
  * same-named PNG kept underneath as the fallback image.
+ *
+ * 3.0 talks to the user's local Ollama brain through this package's own Host
+ * half: one hard-coded same-origin `POST /dsh-pet-brain/chat` route (the DSH
+ * desktop renderer runs on the `dsh-app://app` origin, which Ollama's CORS
+ * allowlist does not include, so a direct browser → Ollama call is rejected at
+ * preflight). The Host half forwards to `127.0.0.1:11434/api/chat` with
+ * `"think": false` and `"options": {"num_gpu": 0}` fixed. Nothing else is
+ * contacted, and nothing outside the browser is read. The conversation memory is
+ * module-level inside this factory, so it survives hiding/recalling the pet and
+ * is wiped by a page reload.
  *
  * Plain-JS lazy-CJS bundle: running this file only registers a factory, and every
  * side effect lives inside the factory closure.
@@ -58,10 +70,46 @@ window.__ModuleLoader__.load({
     const TAP_WINDOW_MS = 1000
     const TAP_COUNT = 3
 
+    /* ---- 3.0 local brain (Ollama) & chat tunables --------------------- */
+
+    /**
+     * The only network endpoint this plugin ever talks to: this package's own
+     * Host-half brain route, resolved against the current document origin
+     * (`dsh-app://app` in the desktop app, plain loopback HTTP in a browser).
+     * The Host half is the only thing that touches `127.0.0.1:11434`, so no
+     * browser CORS/CSP rule can block the chat and no remote host is ever
+     * contacted.
+     */
+    const BRAIN_URL = '/dsh-pet-brain/chat'
+    const BRAIN_MODEL = 'xjn-brain'
+    /** Fixed generation controls: no thinking trace, CPU only (unstable GPU driver). */
+    const BRAIN_OPTIONS = { num_gpu: 0 }
+    const BRAIN_TIMEOUT_MS = 180000
+    /** One "round" = one user message + one answer; keep the latest 10. */
+    const CHAT_HISTORY_ROUNDS = 10
+    /** Hard cap for one answer, counted in Unicode code points: 40 个字. */
+    const CHAT_MAX_CHARS = 40
+    /** Answer finished → 「开心庆祝」2 秒. */
+    const CHAT_CHEER_MS = 2000
+    /** 用户骂她 / 说难过的事 → 「委屈含泪」4 秒. */
+    const CHAT_SAD_MS = 4000
+    /** How long a finished answer stays in the bubble before it fades. */
+    const CHAT_BUBBLE_MS = 8000
+    /** The offline line stays up long enough to read. */
+    const BRAIN_ASLEEP_MS = 6000
+    /** Two taps inside this window open the chat box (double-click). */
+    const DOUBLE_TAP_MS = 500
+    /** Open the box a beat after the second tap so a 3-tap 「喊疼」 never flickers it. */
+    const OPEN_CHAT_DELAY_MS = 240
+    /** Ignore outside presses this soon after opening: focus/scroll churn must not close it. */
+    const CHAT_OPEN_GRACE_MS = 400
+    /** A single click still says a phrase, just after ruling out a double-click. */
+    const PHRASE_DELAY_MS = 320
+
     /** Host-asset route registered by this package's Host half. */
     const ASSET_BASE = '/dsh-pet-assets/'
     /** Cache-busting token: bump it together with the package version. */
-    const ASSET_VERSION = '2.0.0'
+    const ASSET_VERSION = '3.0.2'
 
     /* ------------------------------------------------------------------ */
     /* Character manifest (mirrors 小鲸娘/manifest.json)                    */
@@ -135,9 +183,10 @@ window.__ModuleLoader__.load({
     const TEXT = {
       zh: {
         'pet.label': '小鲸娘桌面宠物',
-        'pet.hint': '点我聊两句，按住可以拖动我，右键换配色、换造型或退出。',
+        'pet.hint': '双击我聊天，按住可以拖动我，右键换配色、换造型或退出。',
         'menu.color': '换配色',
         'menu.outfit': '换造型',
+        'menu.chat': '和她聊天',
         'menu.hide': '藏起小鲸娘',
         'menu.quit': '退出小鲸娘',
         'menu.unavailable': '这套还没有素材哦',
@@ -146,6 +195,13 @@ window.__ModuleLoader__.load({
         'ouch': '呜…好疼，别戳啦！',
         'color.title': '配色',
         'outfit.title': '造型',
+        'chat.placeholder': '和小鲸娘说点什么…',
+        'chat.send': '发送',
+        'chat.label': '和小鲸娘聊天',
+        'chat.close': '关闭聊天',
+        'brain.thinking': '唔…让我想想',
+        'brain.asleep': '我的大脑还没睡醒～',
+        'brain.empty': '呜…我走神了。',
         'phrase.0': '今天也辛苦啦，摸摸头～',
         'phrase.1': '慢慢来，我陪着你。',
         'phrase.2': '写累了吗？看看我的小鲸鱼尾巴～',
@@ -161,9 +217,10 @@ window.__ModuleLoader__.load({
       },
       en: {
         'pet.label': 'Xiaojingniang desktop pet',
-        'pet.hint': 'Click me for a little chat, drag to move me, right-click for colours, outfits, hide or quit.',
+        'pet.hint': 'Double-click me to chat, drag to move me, right-click for colours, outfits, hide or quit.',
         'menu.color': 'Change colours',
         'menu.outfit': 'Change outfit',
+        'menu.chat': 'Chat with her',
         'menu.hide': 'Hide Xiaojingniang',
         'menu.quit': 'Quit Xiaojingniang',
         'menu.unavailable': 'No artwork for this combination yet',
@@ -172,6 +229,13 @@ window.__ModuleLoader__.load({
         'ouch': 'Ouch… that hurts, stop poking me!',
         'color.title': 'Colours',
         'outfit.title': 'Outfits',
+        'chat.placeholder': 'Say something to Xiaojingniang…',
+        'chat.send': 'Send',
+        'chat.label': 'Chat with Xiaojingniang',
+        'chat.close': 'Close chat',
+        'brain.thinking': 'Hmm… let me think',
+        'brain.asleep': 'My brain is still asleep~',
+        'brain.empty': 'Mmm… I spaced out.',
         'phrase.0': 'Good work today — head pats!',
         'phrase.1': 'Take it slow, I am right here.',
         'phrase.2': 'Tired? Look at my little whale tail!',
@@ -231,7 +295,21 @@ window.__ModuleLoader__.load({
       '.dsh-pet-tab:hover{opacity:1;width:44px}',
       '.dsh-pet-tab:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:-2px}',
       '.dsh-pet-tab img{width:34px;height:46px;object-fit:contain;pointer-events:none;-webkit-user-drag:none}',
-      '@media (prefers-reduced-motion: reduce){.dsh-pet-art{animation:none!important}.dsh-pet-video{transition:none}}',
+      '.dsh-pet-say.is-chat{max-width:252px;padding:9px 13px;text-align:left;background:var(--dsw-alias-bg-layer-1);border-color:var(--dsw-alias-border-l2)}',
+      '.dsh-pet-say.is-chat::after{background:var(--dsw-alias-bg-layer-1);border-right-color:var(--dsw-alias-border-l2);border-bottom-color:var(--dsw-alias-border-l2)}',
+      '.dsh-pet-caret{display:inline-block;width:2px;height:12px;margin-left:2px;vertical-align:-2px;background:var(--dsw-alias-brand-primary);animation:dsh-pet-caret-blink 1s steps(2) infinite}',
+      '@keyframes dsh-pet-caret-blink{0%,100%{opacity:1}50%{opacity:0}}',
+      '.dsh-pet-chatbox{position:fixed;z-index:4;display:flex;align-items:center;gap:6px;width:246px;box-sizing:border-box;padding:7px;border-radius:12px;background:var(--dsw-alias-bg-overlay);border:1px solid var(--dsw-alias-border-l1);box-shadow:0 10px 28px rgba(0,0,0,.2);pointer-events:auto}',
+      '.dsh-pet-chat-input{flex:1 1 auto;min-width:0;height:30px;box-sizing:border-box;padding:0 9px;border:1px solid var(--dsw-alias-border-l2);border-radius:8px;background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:inherit;font-size:13px;line-height:normal;outline:none}',
+      '.dsh-pet-chat-input:focus{border-color:var(--dsw-alias-brand-primary)}',
+      '.dsh-pet-chat-input::placeholder{color:var(--dsw-alias-label-secondary)}',
+      '.dsh-pet-chat-send{flex:0 0 auto;height:30px;padding:0 11px;border:0;border-radius:8px;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-bg-base);font:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}',
+      '.dsh-pet-chat-send:disabled{opacity:.45;cursor:default}',
+      '.dsh-pet-chat-send:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:2px}',
+      '.dsh-pet-chat-close{flex:0 0 auto;width:22px;height:22px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:15px;line-height:1;cursor:pointer}',
+      '.dsh-pet-chat-close:hover{background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary)}',
+      '.dsh-pet-chat-close:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
+      '@media (prefers-reduced-motion: reduce){.dsh-pet-art{animation:none!important}.dsh-pet-video{transition:none}.dsh-pet-caret{animation:none!important}}',
     ].join('\n')
 
     /* ------------------------------------------------------------------ */
@@ -303,6 +381,83 @@ window.__ModuleLoader__.load({
       } catch (error) {
         return false
       }
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* 3.0: persona, short-term memory and streaming helpers               */
+    /* ------------------------------------------------------------------ */
+
+    /**
+     * 人设提示词：原创二次元鲸鱼女孩「小鲸娘」，简短、可爱、偶尔吐槽。
+     * Kept as one constant string (tested against xjn-brain: Chinese-only,
+     * statement-shaped replies, ~12–34 code points, 委屈→安慰 on sad/mean input).
+     * A constant prefix also keeps Ollama's prompt cache warm (133 ms vs multi-s).
+     */
+    const SYSTEM_PROMPT =
+      '你是「小鲸娘」，住在海边的鲸鱼少女，声音软软的，有点小骄傲也会害羞。只用简体中文像说话一样接话，每条最多26个字，越短越好；不用markdown、列表、链接、颜文字；不提AI、模型、程序，不用英文单词；不写旁白，不用第三人称说自己；不要反问，也不要出现问号，每句都是陈述句。可以偶尔轻轻吐槽用户，像亲近的玩笑，但马上变软，绝不刻薄。用户难过或骂你时，先委屈一小下（呜…你这样说，我有点难过），紧接着温柔安慰，安慰的话换着说，别每次一样，不许凶回去。讲笑话就直接讲个短的，两三句讲完就停。讲知识也用小鲸娘的口气，别像教科书。'
+
+    /** 用户说了难过的事 → 「委屈含泪」。 */
+    const SAD_WORDS = [
+      '难过', '伤心', '想哭', '哭了', '好累', '累了', '崩溃', '失眠', '失恋', '分手',
+      '压力', '焦虑', '孤独', '绝望', '抑郁', '不开心', '烦死', '撑不住', '委屈', '心疼',
+      'sad', 'cry', 'tired', 'depressed', 'lonely', 'anxious', 'upset', 'hurt', 'bad day',
+    ]
+
+    /** 用户骂她 → 「委屈含泪」。 */
+    const INSULT_WORDS = [
+      '笨', '蠢', '傻', '讨厌', '滚', '闭嘴', '废物', '没用', '去死', '垃圾',
+      '丑', '猪', '烦人', '坏蛋', '凶',
+      'stupid', 'idiot', 'dumb', 'hate', 'ugly', 'shut up', 'fool', 'useless',
+    ]
+
+    function detectSadOrMean(text) {
+      const value = String(text || '').toLowerCase()
+      for (let index = 0; index < SAD_WORDS.length; index += 1) {
+        if (value.indexOf(SAD_WORDS[index]) >= 0) return true
+      }
+      for (let index = 0; index < INSULT_WORDS.length; index += 1) {
+        if (value.indexOf(INSULT_WORDS[index]) >= 0) return true
+      }
+      return false
+    }
+
+    /** Append one stream delta, hard-capping the answer at CHAT_MAX_CHARS code points. */
+    function appendCapped(current, delta) {
+      let text = current + String(delta).replace(/[\r\n]+/g, ' ')
+      if (current === '') text = text.replace(/^\s+/, '')
+      const chars = Array.from(text)
+      if (chars.length <= CHAT_MAX_CHARS) return { text: text, capped: false }
+      return { text: chars.slice(0, CHAT_MAX_CHARS).join(''), capped: true }
+    }
+
+    function parseStreamLine(line) {
+      try {
+        const value = JSON.parse(line)
+        return value && typeof value === 'object' ? value : null
+      } catch (error) {
+        return null
+      }
+    }
+
+    /**
+     * Last N rounds of this page's conversation. Module-level on purpose: hiding
+     * and recalling the pet keeps the thread, while a page reload starts fresh.
+     */
+    const chatHistory = []
+
+    function rememberChatRound(userText, replyText) {
+      chatHistory.push({ role: 'user', content: userText })
+      chatHistory.push({ role: 'assistant', content: replyText })
+      while (chatHistory.length > CHAT_HISTORY_ROUNDS * 2) chatHistory.shift()
+    }
+
+    function composeChatMessages(userText) {
+      const messages = [{ role: 'system', content: SYSTEM_PROMPT }]
+      for (let index = 0; index < chatHistory.length; index += 1) {
+        messages.push({ role: chatHistory[index].role, content: chatHistory[index].content })
+      }
+      messages.push({ role: 'user', content: userText })
+      return messages
     }
 
     /**
@@ -760,14 +915,24 @@ window.__ModuleLoader__.load({
 
     /**
      * One expression at a time, highest priority first:
-     *   被戳疼 > 委屈含泪 > 心疼钱 > 得意眯眼笑 > 开心庆祝 > 困了 > 日常微笑
+     *   被戳疼 > 聊天中（委屈 / 得意 / 庆祝）> 调试强制 > DSH 状态 > 困了 > 日常微笑
+     *
+     * 3.0 chat moods outrank everything except a physical poke: while the user is
+     * talking to her, a sad/mean message shows 「委屈含泪」, a streaming answer
+     * shows 「得意眯眼笑」 and a finished answer shows the 2-second 「开心庆祝」 —
+     * even at 3 a.m., when the idle face is 「困了」. Once the chat mood expires the
+     * night sleepiness returns. Chat moods also beat the 2.0 debug override so a
+     * stale `dsh.desktop-pet.xjn.forceExpression` can never hide them.
      *
      * `running` outranks 「开心庆祝」 on purpose: a new turn that starts within
-     * the 3 s celebration window must show thinking, not a stale cheer.
+     * the celebration window must show thinking, not a stale cheer.
      */
-    function resolveExpression(activity, now, ouchUntil, debug) {
-      if (debug.expression) return debug.expression
+    function resolveExpression(activity, now, ouchUntil, debug, chatMood) {
       if (ouchUntil && now < ouchUntil) return 'ouch'
+      if (chatMood && chatMood.sadUntil && now < chatMood.sadUntil) return 'teary'
+      if (chatMood && chatMood.streaming) return 'smug'
+      if (chatMood && chatMood.cheerUntil && now < chatMood.cheerUntil) return 'cheer'
+      if (debug.expression) return debug.expression
       const rejectedAt = activity.rejectedAt()
       if (rejectedAt && now - rejectedAt < TEARY_MS) return 'teary'
       if (activity.running()) {
@@ -913,6 +1078,8 @@ window.__ModuleLoader__.load({
 
       const anchorRef = React.useRef(null)
       const popupRef = React.useRef(null)
+      const chatBoxRef = React.useRef(null)
+      const chatInputRef = React.useRef(null)
       const runtimeRef = React.useRef(null)
       if (runtimeRef.current === null) {
         const width = window.innerWidth || 0
@@ -929,9 +1096,16 @@ window.__ModuleLoader__.load({
           },
           drag: null,
           taps: [],
+          lastTapAt: 0,
+          phraseTimer: 0,
+          openChatTimer: 0,
           seq: 0,
           sayTimer: 0,
           quitTimer: 0,
+          chatAbort: null,
+          chatBubbleTimer: 0,
+          chatSad: false,
+          chatOpenedAt: 0,
         }
       }
 
@@ -941,6 +1115,8 @@ window.__ModuleLoader__.load({
       const [dragging, setDragging] = React.useState(false)
       const [combo, setCombo] = React.useState(readCombo)
       const [ouchUntil, setOuchUntil] = React.useState(0)
+      const [chat, setChat] = React.useState({ open: false, input: '', streaming: false, reply: '', error: false })
+      const [mood, setMood] = React.useState({ sadUntil: 0, cheerUntil: 0 })
       const [, forceTick] = React.useState(0)
 
       function tick() {
@@ -953,8 +1129,14 @@ window.__ModuleLoader__.load({
         const runtime = runtimeRef.current
         if (runtime.sayTimer) window.clearTimeout(runtime.sayTimer)
         if (runtime.quitTimer) window.clearTimeout(runtime.quitTimer)
+        if (runtime.chatBubbleTimer) window.clearTimeout(runtime.chatBubbleTimer)
+        if (runtime.phraseTimer) window.clearTimeout(runtime.phraseTimer)
+        if (runtime.openChatTimer) window.clearTimeout(runtime.openChatTimer)
         runtime.sayTimer = 0
         runtime.quitTimer = 0
+        runtime.chatBubbleTimer = 0
+        runtime.phraseTimer = 0
+        runtime.openChatTimer = 0
       }
 
       /* ---- geometry ------------------------------------------------- */
@@ -983,6 +1165,19 @@ window.__ModuleLoader__.load({
         writeStorage(POS_KEY, JSON.stringify({ fx: pos.x / width, fy: pos.y / height }))
       }
 
+      /** The small chat box sits beside the pet, flipping to stay on screen. */
+      function chatBoxPosition() {
+        const width = 246
+        const pos = runtimeRef.current.pos
+        const viewportWidth = window.innerWidth || 0
+        const viewportHeight = window.innerHeight || 0
+        let left = pos.x + BOX / 2 - 6
+        if (left + width > viewportWidth - 8) left = pos.x - BOX / 2 - width + 6
+        left = Math.min(Math.max(8, left), Math.max(8, viewportWidth - width - 8))
+        const top = Math.min(Math.max(8, pos.y - 20), Math.max(8, viewportHeight - 46))
+        return { left: left + 'px', top: top + 'px' }
+      }
+
       /* ---- talking --------------------------------------------------- */
 
       function sayText(text) {
@@ -1001,6 +1196,38 @@ window.__ModuleLoader__.load({
         sayText(t('phrase.' + index))
       }
 
+      function clearPhraseTimer() {
+        const runtime = runtimeRef.current
+        if (runtime.phraseTimer) window.clearTimeout(runtime.phraseTimer)
+        runtime.phraseTimer = 0
+      }
+
+      function cancelScheduledChat() {
+        const runtime = runtimeRef.current
+        if (runtime.openChatTimer) window.clearTimeout(runtime.openChatTimer)
+        runtime.openChatTimer = 0
+      }
+
+      /**
+       * Open the chat box a beat after the double-click is recognised so that a
+       * rapid third tap (「连戳喊疼」) cancels it instead of flashing it open.
+       */
+      function scheduleOpenChat() {
+        const runtime = runtimeRef.current
+        cancelScheduledChat()
+        runtime.openChatTimer = window.setTimeout(function () {
+          runtime.openChatTimer = 0
+          openChatInput()
+        }, OPEN_CHAT_DELAY_MS)
+      }
+
+      /**
+       * Tap bookkeeping for 3.0:
+       *   - 3 taps inside the window → 「被戳疼」 (2.0 behaviour, unchanged);
+       *   - 2 taps inside DOUBLE_TAP_MS → schedule the chat box (double-click);
+       *   - 1 tap → the usual random phrase, delayed just enough to rule out a
+       *     double-click so a double-click never fires a stray phrase first.
+       */
       function handleTap() {
         const runtime = runtimeRef.current
         const now = Date.now()
@@ -1010,11 +1237,290 @@ window.__ModuleLoader__.load({
         runtime.taps.push(now)
         if (runtime.taps.length >= TAP_COUNT) {
           runtime.taps = []
+          runtime.lastTapAt = 0
+          clearPhraseTimer()
+          cancelScheduledChat()
           setOuchUntil(now + OUCH_MS)
           sayText(t('ouch'))
           return
         }
-        randomPhrase()
+        if (runtime.lastTapAt && now - runtime.lastTapAt < DOUBLE_TAP_MS) {
+          runtime.lastTapAt = 0
+          clearPhraseTimer()
+          scheduleOpenChat()
+          return
+        }
+        runtime.lastTapAt = now
+        clearPhraseTimer()
+        runtime.phraseTimer = window.setTimeout(function () {
+          runtime.phraseTimer = 0
+          randomPhrase()
+        }, PHRASE_DELAY_MS)
+      }
+
+      /* ---- local-brain chat ------------------------------------------- */
+
+      function clearChatBubbleTimer() {
+        const runtime = runtimeRef.current
+        if (runtime.chatBubbleTimer) window.clearTimeout(runtime.chatBubbleTimer)
+        runtime.chatBubbleTimer = 0
+      }
+
+      function abortChatRequest() {
+        const runtime = runtimeRef.current
+        const controller = runtime.chatAbort
+        runtime.chatAbort = null
+        if (controller) {
+          try {
+            controller.abort()
+          } catch (error) {
+            /* already settled */
+          }
+        }
+      }
+
+      function openChatInput() {
+        cancelScheduledChat()
+        clearPhraseTimer()
+        clearChatBubbleTimer()
+        /* A slow double-click may already have flashed a phrase: drop it so the
+         * box opens cleanly. */
+        const runtime = runtimeRef.current
+        runtime.chatOpenedAt = Date.now()
+        if (runtime.sayTimer) {
+          window.clearTimeout(runtime.sayTimer)
+          runtime.sayTimer = 0
+        }
+        setSay(null)
+        setChat(function (previous) {
+          return {
+            open: true,
+            input: previous.input,
+            streaming: previous.streaming,
+            reply: previous.reply,
+            error: previous.error,
+          }
+        })
+      }
+
+      function closeChatInput() {
+        setChat(function (previous) {
+          return {
+            open: false,
+            input: previous.input,
+            streaming: previous.streaming,
+            reply: previous.reply,
+            error: previous.error,
+          }
+        })
+      }
+
+      function updateChatReply(text) {
+        setChat(function (previous) {
+          if (!previous.streaming) return previous
+          return {
+            open: previous.open,
+            input: previous.input,
+            streaming: true,
+            reply: text,
+            error: false,
+          }
+        })
+      }
+
+      /** Settle one request: record the round, award the mood, arm the fade. */
+      function finalizeChat(userText, replyText, failed) {
+        const runtime = runtimeRef.current
+        runtime.chatAbort = null
+        clearChatBubbleTimer()
+        if (failed) {
+          /* Ollama down, refused, timed out: a soft line, never an error. */
+          setChat(function (previous) {
+            return {
+              open: previous.open,
+              input: previous.input,
+              streaming: false,
+              reply: t('brain.asleep'),
+              error: true,
+            }
+          })
+          runtime.chatBubbleTimer = window.setTimeout(function () {
+            runtime.chatBubbleTimer = 0
+            setChat(function (previous) {
+              if (!previous.error) return previous
+              return {
+                open: previous.open,
+                input: previous.input,
+                streaming: false,
+                reply: '',
+                error: false,
+              }
+            })
+          }, BRAIN_ASLEEP_MS)
+          return
+        }
+        let text = replyText.trim()
+        if (text.length === 0) text = t('brain.empty')
+        rememberChatRound(userText, text)
+        setChat(function (previous) {
+          return {
+            open: previous.open,
+            input: previous.input,
+            streaming: false,
+            reply: text,
+            error: false,
+          }
+        })
+        const sad = !!runtime.chatSad
+        runtime.chatSad = false
+        setMood(function (previous) {
+          /* A hurt user earns teary eyes for a full window after the answer. */
+          if (sad) return { sadUntil: Date.now() + CHAT_SAD_MS, cheerUntil: 0 }
+          return { sadUntil: previous.sadUntil, cheerUntil: Date.now() + CHAT_CHEER_MS }
+        })
+        runtime.chatBubbleTimer = window.setTimeout(function () {
+          runtime.chatBubbleTimer = 0
+          setChat(function (previous) {
+            if (previous.streaming) return previous
+            return {
+              open: previous.open,
+              input: previous.input,
+              streaming: false,
+              reply: '',
+              error: false,
+            }
+          })
+        }, CHAT_BUBBLE_MS)
+      }
+
+      /**
+       * One streaming request to this package's Host-half brain route. The Host
+       * half is the only side that talks to the local Ollama: it fixes the model,
+       * `think:false`, `options:{num_gpu:0}` and the upstream address.
+       */
+      async function streamChatRequest(userText, controller) {
+        let text = ''
+        let failed = false
+        let capped = false
+        let timedOut = false
+        let watchdog = 0
+        try {
+          watchdog = window.setTimeout(function () {
+            timedOut = true
+            try {
+              controller.abort()
+            } catch (error) {
+              /* already settled */
+            }
+          }, BRAIN_TIMEOUT_MS)
+          const response = await fetch(BRAIN_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            /* Only `messages` is trusted by the route; the fixed model/controls
+             * are set again by this package's Host half (the authority). */
+            body: JSON.stringify({
+              model: BRAIN_MODEL,
+              messages: composeChatMessages(userText),
+              stream: true,
+              think: false,
+              options: BRAIN_OPTIONS,
+            }),
+            signal: controller.signal,
+          })
+          if (!response.ok || !response.body || typeof response.body.getReader !== 'function') {
+            failed = true
+          } else {
+            const reader = response.body.getReader()
+            const decoder = new TextDecoder()
+            let buffer = ''
+            let finished = false
+            while (!finished) {
+              const chunk = await reader.read()
+              if (chunk.done) break
+              buffer += decoder.decode(chunk.value, { stream: true })
+              let newline = buffer.indexOf('\n')
+              while (newline >= 0) {
+                const line = buffer.slice(0, newline).trim()
+                buffer = buffer.slice(newline + 1)
+                newline = buffer.indexOf('\n')
+                if (line.length === 0) continue
+                const payload = parseStreamLine(line)
+                if (!payload) continue
+                if (payload.done === true) {
+                  finished = true
+                  break
+                }
+                const delta = payload.message && payload.message.content
+                if (typeof delta !== 'string' || delta.length === 0) continue
+                const grown = appendCapped(text, delta)
+                text = grown.text
+                updateChatReply(text)
+                if (grown.capped) {
+                  /* Her 40-character limit is a promise: stop generating and
+                   * finalize with exactly what fits. */
+                  finished = true
+                  capped = true
+                  break
+                }
+              }
+            }
+            /* The stream may end on a line without a trailing newline. */
+            const tail = buffer.trim()
+            if (!finished && tail.length > 0) {
+              const payload = parseStreamLine(tail)
+              const delta = payload && payload.message && payload.message.content
+              if (typeof delta === 'string' && delta.length > 0) {
+                const grown = appendCapped(text, delta)
+                text = grown.text
+                updateChatReply(text)
+              }
+            }
+            try {
+              reader.cancel()
+            } catch (error) {
+              /* stream already finished */
+            }
+            if (capped) {
+              try {
+                controller.abort()
+              } catch (error) {
+                /* already settled */
+              }
+            }
+          }
+        } catch (error) {
+          /* A hide/quit/close aborts on purpose and must stay silent. */
+          if (runtimeRef.current.chatAbort !== controller) return
+          failed = timedOut || text.length === 0
+        } finally {
+          if (watchdog) window.clearTimeout(watchdog)
+        }
+        if (runtimeRef.current.chatAbort !== controller) return
+        finalizeChat(userText, text, failed)
+      }
+
+      function sendChat() {
+        const runtime = runtimeRef.current
+        if (runtime.chatAbort) return
+        const text = chat.input.trim()
+        if (text.length === 0) return
+        const sad = detectSadOrMean(text)
+        runtime.chatSad = sad
+        clearChatBubbleTimer()
+        setMood(function (previous) {
+          return {
+            sadUntil: sad ? Date.now() + CHAT_SAD_MS : previous.sadUntil,
+            cheerUntil: 0,
+          }
+        })
+        setChat(function (previous) {
+          return { open: true, input: '', streaming: true, reply: '', error: false }
+        })
+        const controller = new AbortController()
+        runtime.chatAbort = controller
+        streamChatRequest(text, controller).catch(function () {
+          /* never let a promise rejection surface as an unhandled error */
+        })
       }
 
       /* ---- dragging --------------------------------------------------- */
@@ -1102,7 +1608,7 @@ window.__ModuleLoader__.load({
 
       function openMenuAt(clientX, clientY) {
         const width = 186
-        const height = 168
+        const height = 205
         const viewportWidth = window.innerWidth || 0
         const viewportHeight = window.innerHeight || 0
         setMenu({
@@ -1124,8 +1630,20 @@ window.__ModuleLoader__.load({
           window.clearTimeout(runtime.sayTimer)
           runtime.sayTimer = 0
         }
+        clearPhraseTimer()
+        cancelScheduledChat()
+        abortChatRequest()
         setMenu(null)
         setSay(null)
+        setChat(function (previous) {
+          return {
+            open: false,
+            input: previous.input,
+            streaming: false,
+            reply: '',
+            error: false,
+          }
+        })
         setHidden(true)
       }
 
@@ -1137,6 +1655,18 @@ window.__ModuleLoader__.load({
         const runtime = runtimeRef.current
         setMenu(null)
         if (runtime.quitTimer) return
+        clearPhraseTimer()
+        cancelScheduledChat()
+        abortChatRequest()
+        setChat(function (previous) {
+          return {
+            open: false,
+            input: previous.input,
+            streaming: false,
+            reply: '',
+            error: false,
+          }
+        })
         sayText(t('farewell'))
         runtime.quitTimer = window.setTimeout(function () {
           runtime.quitTimer = 0
@@ -1149,6 +1679,8 @@ window.__ModuleLoader__.load({
       }
 
       /* ---- effects ---------------------------------------------------- */
+
+      const chatOpen = chat.open
 
       React.useEffect(function () {
         const runtime = runtimeRef.current
@@ -1163,11 +1695,18 @@ window.__ModuleLoader__.load({
         function onResize() {
           clampPos(runtime.pos)
           applyTransform()
+          /* Re-render so the chat box re-anchors beside the pet. */
+          tick()
         }
 
         window.addEventListener('resize', onResize)
         return function () {
           window.removeEventListener('resize', onResize)
+          /* Leaving the page must never keep a CPU-only generation running. */
+          cancelScheduledChat()
+          clearPhraseTimer()
+          clearChatBubbleTimer()
+          abortChatRequest()
           clearTimers()
         }
       }, [])
@@ -1260,6 +1799,51 @@ window.__ModuleLoader__.load({
         [menuOpen],
       )
 
+      /* Focus the chat input the moment the box opens. */
+      React.useEffect(
+        function () {
+          if (!chatOpen) return undefined
+          const node = chatInputRef.current
+          if (node && typeof node.focus === 'function') {
+            try {
+              node.focus()
+            } catch (error) {
+              /* focus is an enhancement, not a requirement */
+            }
+          }
+          return undefined
+        },
+        [chatOpen],
+      )
+
+      /* Close the chat box on Escape or on a press that is genuinely elsewhere.
+       * Scroll/resize must NOT close it: DSH layout churn (and the focus change
+       * from opening the input) used to make it vanish by itself. */
+      React.useEffect(
+        function () {
+          if (!chatOpen) return undefined
+          function onDown(event) {
+            const box = chatBoxRef.current
+            if (box && event.target && box.contains(event.target)) return
+            const petNode = anchorRef.current
+            if (petNode && event.target && petNode.contains(event.target)) return
+            const runtime = runtimeRef.current
+            if (runtime.chatOpenedAt && Date.now() - runtime.chatOpenedAt < CHAT_OPEN_GRACE_MS) return
+            closeChatInput()
+          }
+          function onKey(event) {
+            if (event.key === 'Escape') closeChatInput()
+          }
+          document.addEventListener('pointerdown', onDown, true)
+          document.addEventListener('keydown', onKey, true)
+          return function () {
+            document.removeEventListener('pointerdown', onDown, true)
+            document.removeEventListener('keydown', onKey, true)
+          }
+        },
+        [chatOpen],
+      )
+
       /* Finish a drag even when the pointer is released outside the window. */
       React.useEffect(
         function () {
@@ -1287,11 +1871,21 @@ window.__ModuleLoader__.load({
 
       const now = Date.now()
       const debug = readDebug()
-      const expression = resolveExpression(activity, now, ouchUntil, debug)
+      const expression = resolveExpression(activity, now, ouchUntil, debug, {
+        streaming: chat.streaming,
+        sadUntil: mood.sadUntil,
+        cheerUntil: mood.cheerUntil,
+      })
       const anim = animSrc(combo.color, combo.outfit, expression)
       const still = pngSrc(combo.color, combo.outfit, expression)
       const tabStill = pngSrc(combo.color, combo.outfit, 'smile')
       const reduced = prefersReducedMotion()
+
+      /* Streaming answer > 2.0 phrases > the last finished answer. */
+      let bubble = null
+      if (chat.streaming) bubble = { text: chat.reply || t('brain.thinking'), chat: true, streaming: true }
+      else if (say) bubble = { text: say.text, chat: false, streaming: false }
+      else if (chat.reply) bubble = { text: chat.reply, chat: true, streaming: false }
 
       function menuItem(options) {
         const className =
@@ -1367,7 +1961,7 @@ window.__ModuleLoader__.load({
         !!menu && menu.x + 186 + 6 + 170 > (window.innerWidth || 0)
       /* A submenu opening near the bottom edge grows upwards instead. */
       const submenuFlipUp =
-        !!menu && menu.y + 210 > (window.innerHeight || 0) - 8
+        !!menu && menu.y + 245 > (window.innerHeight || 0) - 8
       const popup = menu
         ? h(
             'div',
@@ -1380,6 +1974,15 @@ window.__ModuleLoader__.load({
             h(
               'div',
               { className: 'dsh-pet-menu', role: 'menu' },
+              menuItem({
+                key: 'chat',
+                label: t('menu.chat'),
+                onClick: function () {
+                  setMenu(null)
+                  openChatInput()
+                },
+              }),
+              h('div', { key: 'sep.chat', className: 'dsh-pet-menu-sep' }),
               menuItem({
                 key: 'color',
                 label: t('menu.color'),
@@ -1441,6 +2044,80 @@ window.__ModuleLoader__.load({
         h('img', { src: tabStill, alt: '', draggable: false, 'aria-hidden': 'true' }),
       )
 
+      const chatBox = chatOpen
+        ? h(
+            'div',
+            {
+              key: 'chatbox',
+              ref: chatBoxRef,
+              className: 'dsh-pet-chatbox',
+              style: chatBoxPosition(),
+              role: 'dialog',
+              'aria-label': t('chat.label'),
+            },
+            h('input', {
+              key: 'input',
+              ref: chatInputRef,
+              className: 'dsh-pet-chat-input',
+              type: 'text',
+              value: chat.input,
+              placeholder: t('chat.placeholder'),
+              'aria-label': t('chat.label'),
+              maxLength: 200,
+              autoComplete: 'off',
+              spellCheck: false,
+              onChange: function (event) {
+                const value = event.target.value
+                setChat(function (previous) {
+                  return {
+                    open: previous.open,
+                    input: value,
+                    streaming: previous.streaming,
+                    reply: previous.reply,
+                    error: previous.error,
+                  }
+                })
+              },
+              onKeyDown: function (event) {
+                /* Chinese IME: Enter confirms a candidate, it must not send. */
+                const native = event.nativeEvent
+                if (native && (native.isComposing || native.keyCode === 229)) return
+                if (event.key === 'Enter' && !event.shiftKey) {
+                  event.preventDefault()
+                  sendChat()
+                } else if (event.key === 'Escape') {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  closeChatInput()
+                }
+              },
+            }),
+            h(
+              'button',
+              {
+                key: 'send',
+                type: 'button',
+                className: 'dsh-pet-chat-send',
+                disabled: chat.streaming || chat.input.trim().length === 0,
+                onClick: sendChat,
+              },
+              t('chat.send'),
+            ),
+            h(
+              'button',
+              {
+                key: 'close',
+                type: 'button',
+                className: 'dsh-pet-chat-close',
+                title: t('chat.close'),
+                'aria-label': t('chat.close'),
+                onClick: closeChatInput,
+              },
+              '×',
+            ),
+          )
+        : null
+
       const startPos = runtimeRef.current.pos
       const pet = h(
         'div',
@@ -1471,6 +2148,12 @@ window.__ModuleLoader__.load({
               persistPos()
             },
             onContextMenu: openMenu,
+            onDoubleClick: function (event) {
+              /* Native double-click: open immediately. The tap bookkeeping above
+               * covers fast double-clicks; this covers the slow ones. */
+              event.preventDefault()
+              openChatInput()
+            },
             onKeyDown: function (event) {
               if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
                 event.preventDefault()
@@ -1488,11 +2171,18 @@ window.__ModuleLoader__.load({
           h(
             'div',
             {
-              className: 'dsh-pet-say' + (say ? ' is-on' : ''),
+              className:
+                'dsh-pet-say' +
+                (bubble ? ' is-on' : '') +
+                (bubble && bubble.chat ? ' is-chat' : '') +
+                (bubble && bubble.streaming ? ' is-streaming' : ''),
               role: 'status',
               'aria-live': 'polite',
             },
-            say ? say.text : '',
+            bubble ? bubble.text : '',
+            bubble && bubble.streaming
+              ? h('span', { key: 'caret', className: 'dsh-pet-caret', 'aria-hidden': 'true' })
+              : null,
           ),
         ),
       )
@@ -1501,7 +2191,7 @@ window.__ModuleLoader__.load({
         React.Fragment,
         null,
         h('style', { key: 'style' }, CSS),
-        h('div', { key: 'root', className: 'dsh-pet-root' }, hidden ? tab : pet, popup),
+        h('div', { key: 'root', className: 'dsh-pet-root' }, hidden ? tab : pet, popup, chatBox),
       )
     }
 
