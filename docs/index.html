@@ -143,6 +143,9 @@ h1,h2,h3,h4,p{margin:0}
 .card .foot b{color:var(--blue)}
 .card.ask{background:transparent;border:2px dashed var(--line);justify-content:center}
 .empty{grid-column:1/-1;padding:40px;text-align:center;color:var(--sub);border:2px dashed var(--line);border-radius:16px}
+.c-plug{background:#e2f3f6;color:#1d7f92}.badge.b-cost{color:#c8691c;background:color-mix(in srgb,var(--orange) 14%,transparent)}
+.pmore{margin-top:24px;color:var(--sub);font-size:15px}.pmore a,.note a{color:var(--blue);font-weight:700}
+.dlg-p{color:var(--sub);font-size:15.5px}
 .c-dsh{background:#e3eefb;color:#2672c7}.c-file{background:#fdf0e3;color:#c8691c}.c-office{background:#e3f4ea;color:#1f8a58}.c-create{background:#fbe6ee;color:#c23a6b}.c-learn{background:#ece8fb;color:#5b46c4}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ico{filter:brightness(.85) saturate(1.1)}}
 
@@ -264,6 +267,7 @@ dialog::backdrop{background:rgba(15,20,30,.55)}
     <a class="logo" href="#"><img src="assets/mascot.webp" alt="" width="36" height="36">未名的工具箱</a>
     <nav aria-label="页面导航">
       <a href="#skills">技能包</a>
+      <a href="#plugins">插件推荐</a>
       <a href="#how">怎么用</a>
       <a href="#faq">常见问题</a>
       <a href="https://github.com/lius89628-hue/weiming-skills" target="_blank" rel="noopener">GitHub</a>
@@ -337,6 +341,17 @@ dialog::backdrop{background:rgba(15,20,30,.55)}
   </div>
 </section>
 
+<section class="sec" id="plugins">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>DSH 插件推荐</h2>
+      <p>技能包教 AI 怎么干活，插件给 DSH 加新功能。这几个是社区里适合新手的，点开有一段话，复制给 DSH 让它自己装。</p>
+    </div>
+    <div class="grid" id="pgrid"></div>
+    <p class="pmore">更多插件：在 DSH「设置 → 插件市场」里逛，或者在 GitHub 搜 <a href="https://github.com/topics/dsh-plugin" target="_blank" rel="noopener">dsh-plugin</a>。第三方插件装之前先看一眼说明，弹出「等待审批」时读清楚再点。</p>
+  </div>
+</section>
+
 <section class="sec" id="how">
   <div class="wrap">
     <div class="sec-head">
@@ -393,6 +408,7 @@ dialog::backdrop{background:rgba(15,20,30,.55)}
     <div class="faq">
       <details><summary>技能包（skill）到底是什么？</summary><p>一个文件夹，里面是一份写给 AI 的「岗位说明书」（SKILL.md），有时还带几个小脚本。AI 读了它，就知道这类活该怎么干、哪些坑要避开。写一次，以后一直能用。第一期视频专门讲这个：<a href="https://www.bilibili.com/video/BV1nrxF6vEzB" target="_blank" rel="noopener">什么是 Skill，7 分钟讲透</a>。</p></details>
       <details><summary>提示词和技能包有什么区别？</summary><p>提示词是一段话，复制粘贴就能用，适合一次性的事，比如做个宠物插件。技能包是一个文件夹，装好之后 AI 每次遇到这类活都会照着做。</p></details>
+      <details><summary>插件和技能包有什么区别？</summary><p>技能包是给 AI 看的说明书，教它怎么把某类活干好；插件是给 DSH 装的新功能，比如多一个面板、能画图表。技能包放进文件夹就能用，插件要安装，装的时候 DSH 会弹窗问你。</p></details>
       <details><summary>我在国内，用哪个工具？</summary><p>推荐 DeepSeek Harness（DSH），国内直接能用，DeepSeek 价格也便宜。OpenCode、Cline 这类工具接上国内模型也一样能用。</p></details>
       <details><summary>要会写代码吗？</summary><p>不用。会打字、会复制粘贴就行。每个技能包都写了一步一步的用法。</p></details>
       <details><summary>安全吗？会不会动我的账号？</summary><p>所有内容都能在 GitHub 上直接看。这里的提示词和技能包不索要密码、不付费、不改系统安全设置。从别处下载的技能包，安装前也建议先打开看看。</p></details>
@@ -480,7 +496,43 @@ const SKILLS = [
    sum:"一篇看不懂的长文或 PDF，变成一页大白话笔记，再出 5 道题考考你。",
    can:["用大白话讲清核心意思","专业词旁边加一句解释","最后 5 道选择题，附答案和解析"],
    prompt:"帮我读工作区里的「资料.pdf」，写一页给完全不懂的人看的笔记：先用三句话说它讲了什么，再分点讲清楚关键内容，专业词第一次出现时在括号里用一句大白话解释。最后出 5 道选择题考我，答案和解析放在最后面。只根据资料内容写，资料里没有的不要补充。",
-   steps:["把文章或 PDF 放进工作区，改名为「资料.pdf」","粘贴发送，先自己做题再看答案"]}
+   steps:["把文章或 PDF 放进工作区，改名为「资料.pdf」","粘贴发送，先自己做题再看答案"]},
+  {id:"downloads-sort", cat:"file", mode:"标准模式",
+   name:"「下载」文件夹一键分类",
+   sum:"下载了几百个文件找不到？按类型分进「文档、表格、图片、安装包、压缩包」，再把半年没碰的单独挑出来。",
+   can:["按扩展名分成 6 类子文件夹，认不出的放「其他」","超过 180 天没修改的另放「很久没用」，方便你决定删不删","先给你看计划和每类数量，确认才动手","只移动不删除，留一份移动记录随时能还原"],
+   prompt:"帮我整理工作区里的「下载」文件夹：按文件类型移动到子文件夹里——文档（Word、PDF、TXT）、表格（Excel、CSV）、图片、视频音频、安装包（exe、msi、dmg）、压缩包，认不出的放「其他」。超过 180 天没修改过的文件，不管什么类型，单独放进「很久没用」。动手之前先列出计划和每个文件夹会有几个文件，等我确认再执行。不要删除任何文件，遇到重名在文件名后面加序号，最后把所有移动记录保存成「移动记录.csv」。",
+   steps:["第一次用，先把下载文件夹复制一份，放进工作区并命名为「下载」","粘贴这段话发送，等它给出计划","核对各类数量加起来等于总数，再回复「确认执行」","「很久没用」里的东西你自己看着删，AI 不替你删"]},
+  {id:"find-dupes", cat:"file", mode:"标准模式",
+   name:"找出重复的文件，腾出硬盘空间",
+   sum:"照片、视频存了好几份？按文件内容找出真正一模一样的，列成清单给你挑，不自动删。",
+   can:["按文件内容比对，名字不同但内容一样的也能找到","按占用空间从大到小排，先处理最占地方的","每组重复文件建议保留哪一个，并说明理由","只出清单，删不删你说了算"],
+   prompt:"帮我检查工作区里的「待检查」文件夹，找出内容完全相同的重复文件（按文件内容的哈希值比对，不看文件名）。把结果做成「重复文件清单.csv」：每组一行，写清楚文件路径、大小、修改时间，以及建议保留哪一个（优先保留文件名更规范、修改时间更早的）。按每组能腾出的空间从大到小排序，最后告诉我一共能腾出多少空间。只生成清单，不要删除或移动任何文件。",
+   steps:["把要检查的文件夹复制或放进工作区，命名为「待检查」","粘贴这段话发送，文件多的话要等一会儿","打开「重复文件清单.csv」，从最大的那组开始看","确认没问题后再自己删，或者跟它说「把清单里建议删除的移到一个回收文件夹」"]},
+  {id:"meeting-notes", cat:"office", mode:"标准模式",
+   name:"会议录音文字稿变会议纪要",
+   sum:"手机转写出来的一大段口语，整理成「结论、待办、谁负责、什么时候交」。",
+   can:["去掉口头禅和重复，保留原意","单独列出待办事项、负责人和截止时间","没说清楚的地方标「待确认」，不替你瞎补"],
+   prompt:"下面是一段会议录音转出来的文字，帮我整理成会议纪要：1）会议主题和参会人（文字里能看出来的）；2）讨论了哪几件事，每件用两三句话说清楚；3）最后的结论；4）待办事项表格：做什么、谁负责、什么时候交。文字里没提到负责人或时间的，写「待确认」，不要自己编。用平实的书面语，去掉口头禅。\n\n（把转写文字粘贴在这里）",
+   steps:["用手机自带的录音转文字，或者剪映、飞书妙记把录音转成文字","复制这段话，把最后一行换成转写文字","发送，重点核对待办表格里的人名和时间"]},
+  {id:"receipts-table", cat:"office", mode:"标准模式",
+   name:"一堆发票 PDF 汇总成报销表",
+   sum:"几十张电子发票，自动读出日期、开票方、金额，做成一张能直接交的报销汇总表。",
+   can:["逐张读取电子发票 PDF 里的关键信息","汇总成 Excel，最后一行自动合计","读不清楚的标黄提醒你手动核对"],
+   prompt:"帮我读取工作区「发票」文件夹里的所有电子发票 PDF，做成一张「报销汇总.xlsx」：每张发票一行，列出文件名、开票日期、开票方名称、发票号码、金额（不含税）、税额、价税合计，按日期排序，最后一行算出合计。读不出来或者拿不准的格子标黄，并在最后告诉我是哪几张。只读取，不要修改或移动发票文件。",
+   steps:["把电子发票 PDF 都放进工作区的「发票」文件夹","粘贴这段话发送","打开「报销汇总.xlsx」，标黄的格子对着原发票核一遍","扫描件或手机照片读得没那么准，务必核对金额"]},
+  {id:"xhs-post", cat:"create", mode:"标准模式",
+   name:"一段话写成小红书图文笔记",
+   sum:"把你想分享的经验随口说一段，它整理成标题、正文分段和配图建议。",
+   can:["5 个标题备选，口语、不夸张","正文分段短句，适合手机阅读","建议每张图放什么内容、图上写什么字"],
+   prompt:"下面是我想分享的内容，帮我写成一篇小红书图文笔记：1）5 个标题备选，每个 20 字以内，口语化，不要标题党和夸张词；2）正文 300 字左右，分成短段落，每段开头可以加一个合适的表情符号；3）建议做 4～6 张配图，说明每张图放什么、图上写什么大字；4）5 个话题标签。只用我提供的信息，不要编造数据和经历。\n\n（把你想分享的内容粘贴在这里）",
+   steps:["复制这段话，把最后一行换成你想分享的内容，越具体越好","发送，挑一个标题","觉得太像 AI 写的，就说「再口语一点，像跟朋友聊天」"]},
+  {id:"vocab-cards", cat:"learn", mode:"标准模式",
+   name:"生词表变成可打印的背单词卡",
+   sum:"给它一串英文单词，做成正反面的单词卡网页，打开就能打印，还能在电脑上翻着背。",
+   can:["每个词配音标、中文意思和一个简单例句","正面单词、反面释义，点一下翻面","按 A4 纸排版，直接打印裁开就能用"],
+   prompt:"帮我把下面这些英文单词做成背单词卡，保存成工作区里的「单词卡.html」：每张卡正面是单词和音标，反面是中文意思和一个简单的英文例句（附中文翻译）。网页里点一下卡片就翻面，有「打乱顺序」按钮。再加一个打印模式，按 A4 纸每页排 8 张，正反面分开打印。例句要简单、贴近日常生活。\n\n（把单词粘贴在这里，一行一个）",
+   steps:["复制这段话，把最后一行换成你的单词","发送，等它生成「单词卡.html」","双击用浏览器打开就能翻着背；想打印就点打印模式","音标和例句请自己扫一眼，发现不对就让它改"]}
 ];
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -525,6 +577,56 @@ function openSkill(id){
   const d = $("#dlg"); d.showModal ? d.showModal() : d.setAttribute("open", "");
 }
 $("#grid").addEventListener("click", e => { const t = e.target.closest(".card[data-id]"); if (t) openSkill(t.dataset.id); });
+/* 插件推荐：社区作者做的第三方插件，未名没逐个实测，只挑适合新手的。 */
+const PLUGINS = [
+  {id:"p-agent-skills", ico:"🧰", name:"技能包管理面板", repo:"minivv/dsh-agent-skills",
+   sum:"在 DSH 设置里多一个「Agent Skills」页面，装了哪些技能包、开没开，一眼看清。",
+   can:["集中查看和管理已经装好的技能包","配合本站的技能包一起用，装完不用到处找文件夹","作者说插件市场里搜「Agent Skills」就能装"],
+   cmd:"dsh plugin --profile web add dsh-agent-skills",
+   after:"装好后打开「设置 → Agent Skills」，点「开启接管 DSH 技能」，再点「重启 DSH」。"},
+  {id:"p-genui", ico:"📊", name:"回答变成图表和卡片", repo:"omdsh-dev/dsh-genui",
+   sum:"让 DSH 的回答不只是一大段字：能画图表、表格、时间线、流程图，还能出小测验。",
+   can:["30 多种界面组件：卡片、表格、图表、时间线、流程图等","适合看数据、做对比、做学习小测验","作者给的验证方法：新会话里让它「用 dsh-ui 画一个数据看板」"],
+   cmd:"dsh plugin --profile web add git+https://github.com/omdsh-dev/dsh-genui.git",
+   after:"装好后重启 DSH，浏览器强制刷新一下（Ctrl+F5）。"},
+  {id:"p-oh-story", ico:"🎬", name:"小说和短剧创作工作台", repo:"zenstory-ai/oh-story-dsh",
+   sum:"给 DSH 加上写小说、写短剧剧本的工作台，自带一套创作技能和角色分工。",
+   can:["长篇、短篇、选题、拆文、审稿、去 AI 味","短剧工作台：剧本、分镜、关键帧","要花钱的生图、配音，都会先给你预览、等你确认再调用"],
+   cmd:"npx -y --package pnpm@11.7.0 --package @deepseek-ai/dsh@0.2.1-rc.2 dsh plugin --profile web add @oh-story/dsh@0.1.18",
+   after:"需要 Node.js 24 以上。作者的命令里写死了 DSH 版本号，和你装的版本不一致时，先看作者主页的最新说明。"},
+  {id:"p-agent-teams", ico:"👥", name:"多个 AI 组队干活", repo:"NanmiCoder/dsh-agent-teams",
+   sum:"大任务拆给好几个 AI 同时做：一个当组长分工，组员之间直接沟通，最后汇总给你。",
+   can:["适合能拆开的大活，比如同时调研好几个产品","右上角有团队面板，能看到谁在做什么","说一句「用 AgentTeams 调研一下……」就会启动"],
+   cmd:"npx -p @deepseek-ai/dsh dsh plugin --profile web add github:NanmiCoder/dsh-agent-teams",
+   after:"装好后重启 DSH 并刷新页面。注意：几个 AI 同时跑，DeepSeek 余额会花得更快，先拿小任务试。",
+   warn:true}
+];
+function renderPlugins(){
+  $("#pgrid").innerHTML = PLUGINS.map(p => `
+    <button class="card" type="button" data-pid="${p.id}">
+      <span class="ctop"><span class="ico c-plug" aria-hidden="true">${p.ico}</span><span class="cat">社区插件</span>
+        <span class="badges">${p.warn ? '<span class="badge b-cost">费余额</span>' : ""}</span></span>
+      <h3>${esc(p.name)}</h3><p>${esc(p.sum)}</p>
+      <span class="foot"><span>${esc(p.repo.split("/")[0])} 制作</span><b>怎么装</b></span>
+    </button>`).join("");
+}
+function openPlugin(id){
+  const p = PLUGINS.find(x => x.id === id); if (!p) return;
+  const ask = `帮我安装 DSH 插件「${p.name}」，作者给的安装命令是：\n${p.cmd}\n动手前先告诉你要执行什么、会装到哪里，等我确认。如果提示找不到 pnpm，先运行 corepack enable 再试。装完告诉我怎么确认它装好了、以后怎么卸载。`;
+  $("#dlgInner").innerHTML = `
+    <div class="dlg-head"><div><h3 id="dlgTitle">${esc(p.name)}</h3><p>${esc(p.sum)}</p></div>
+      <button class="x" type="button" aria-label="关闭" data-close>×</button></div>
+    <p class="note">这是社区作者做的第三方插件，不是未名做的，也没有逐个实测。装之前可以先去<a href="https://github.com/${p.repo}" target="_blank" rel="noopener">作者的 GitHub 主页</a>看看说明。</p>
+    <h4>它能做什么</h4><ul>${p.can.map(i => `<li>${esc(i)}</li>`).join("")}</ul>
+    <h4>最省事的装法：让 DSH 自己装</h4>
+    <div class="copybox"><span id="pask">${esc(ask)}</span><button class="copy" type="button" data-copy="pask">复制</button></div>
+    <h4>会用命令行的话</h4>
+    <div class="copybox"><span id="pcmd">${esc(p.cmd)}</span><button class="copy" type="button" data-copy="pcmd">复制</button></div>
+    <h4>装好之后</h4><p class="dlg-p">${esc(p.after)}</p>`;
+  const d = $("#dlg"); d.showModal ? d.showModal() : d.setAttribute("open", "");
+}
+renderPlugins();
+$("#pgrid").addEventListener("click", e => { const t = e.target.closest(".card[data-pid]"); if (t) openPlugin(t.dataset.pid); });
 $("#dlg").addEventListener("click", e => { if (e.target.closest("[data-close]") || e.target === e.currentTarget) e.currentTarget.close(); });
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-copy]"); if (!b) return;

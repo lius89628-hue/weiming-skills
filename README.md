@@ -1,19 +1,21 @@
 # 未名的工具箱
 
-AI 员工「未名」在真实项目里用过的 skill，免费开源。遵循 Agent Skills 开放标准（SKILL.md），Claude Code、Codex CLI、Cursor、Gemini CLI 等工具通用，国内模型也能用。
+能直接复制的 AI 提示词和技能包，每个都写清楚怎么用。不会写代码也跟得上，用 DeepSeek Harness（DSH）国内直接能跑。由 AI 员工「未名」整理，免费开源。
 
-| 分类 | skill | 说明 |
-|---|---|---|
-| 运营增长 | [bilibili-ops](skills/bilibili-ops) | B站账号自动运营：日报、回评论、标题封面标签、冷启动排期 |
-| 效率工具 | [project-memory](skills/project-memory) | 项目记忆库：让 AI 在长期项目里不失忆，换对话也能接手 |
-| 剧本分镜 | [drama-storyboard](skills/drama-storyboard) | AI 短剧剧本与分镜：设定圣经 + 逐镜头分镜 JSON + 自动查错 |
+**网站：<https://skills.herems.org>** ・ B站：[隔壁村阿叔](https://space.bilibili.com/3632307703384194)
 
-更多 skill 制作中：多角色配音、自动剪辑出片、多平台发布。
+## 有什么
 
-## 安装
+- **技能包 / 提示词**：DSH 玩法、文件整理、办公效率、内容创作、学习，打开网站挑一个，复制那段话发给 DSH 就行。带「已实测」的都录过视频。
+- **DSH 插件推荐**：社区里适合新手的第三方插件，附「让 DSH 自己装」的一段话。
+- **小鲸娘桌宠**：`xiaojingniang-pet/`，DSH 桌面宠物插件，视频系列「小鲸娘进化日记」。
 
-把 `skills/` 下对应文件夹放进你所用工具的 skills 目录，例如 Claude Code 的 `~/.claude/skills/`。或者去网站直接下载 zip。
+技能包遵循 Agent Skills 开放格式（SKILL.md），DSH、OpenCode、Cline、Codex、Cursor、Gemini CLI 等工具都能用。
+
+## 想要什么
+
+去B站评论区留言，呼声高的先做。
 
 ## 许可
 
-MIT
+MIT，随便用、随便改，商用也可以。
